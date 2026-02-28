@@ -2,233 +2,271 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon TV Center - IPTV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TV_NTX | High-End Stream</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #ff3e3e;
-            --bg: #0f0f0f;
-            --card: #1e1e1e;
-            --text: #ffffff;
+        :root { --ntx-red: #e50914; --bg: #000; --card: #121212; --border: rgba(255,255,255,0.08); }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { 
+            margin: 0; padding: 0; background: var(--bg); color: #fff; 
+            font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100%;
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+        /* NAVIGATION FIXE */
+        nav { 
+            position: fixed; top: 0; width: 100%; height: 65px; 
+            display: flex; align-items: center; padding: 0 5%; 
+            z-index: 1000; background: rgba(0,0,0,0.9); 
+            border-bottom: 1px solid var(--border); backdrop-filter: blur(10px);
+        }
+        .logo { font-weight: 900; font-size: 24px; color: var(--ntx-red); letter-spacing: -1.5px; }
+        .nav-links { margin-left: auto; display: flex; gap: 20px; }
+        .nav-link { font-size: 13px; font-weight: 700; cursor: pointer; color: #888; text-transform: uppercase; transition: 0.3s; }
+        .nav-link.active { color: #fff; }
+        .nav-link-adm { color: var(--ntx-red) !important; border: 1px solid var(--ntx-red); padding: 4px 10px; border-radius: 4px; }
+
+        /* CONTENEUR PRINCIPAL */
+        .main-content { max-width: 1400px; margin: 0 auto; padding: 85px 5% 40px; }
+
+        /* LECTEUR VIDEO */
+        .player-section { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        video { width: 100%; height: 100%; display: block; }
+        .now-playing { margin-top: 15px; font-weight: 700; color: var(--ntx-red); font-size: 14px; text-transform: uppercase; }
+
+        /* FILTRE CATEGORIES */
+        .filter-wrap { margin: 25px 0; }
+        .cat-select { 
+            background: #111; color: #fff; border: 1px solid #333; padding: 12px 20px; 
+            border-radius: 8px; width: 100%; max-width: 320px; font-weight: 600; cursor: pointer; outline: none;
         }
 
-        /* Barre de Navigation */
-        nav {
-            background: var(--card);
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            border-bottom: 2px solid var(--primary);
+        /* GRILLE DE CHAINES */
+        .row-title { font-size: 20px; font-weight: 800; margin: 35px 0 15px; text-transform: uppercase; letter-spacing: 0.5px; border-left: 4px solid var(--ntx-red); padding-left: 12px; }
+        .row-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
+        .row-scroll::-webkit-scrollbar { display: none; }
+        .card { 
+            min-width: 220px; width: 220px; aspect-ratio: 16/9; background: var(--card); 
+            border: 1px solid var(--border); border-radius: 8px; cursor: pointer; 
+            transition: transform 0.3s, border-color 0.3s; overflow: hidden; position: relative;
+        }
+        .card:hover { transform: scale(1.04); border-color: var(--ntx-red); }
+        .card img { width: 100%; height: 100%; object-fit: contain; padding: 15px; }
+
+        /* PANNEAU ADMIN */
+        .admin-page { display: none; padding: 85px 5% 50px; max-width: 900px; margin: 0 auto; }
+        .box { background: #0a0a0a; padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
+        .box h3 { margin-top: 0; color: #fff; font-size: 18px; margin-bottom: 20px; }
+        
+        .ntx-input { 
+            width: 100%; padding: 14px; background: #111; border: 1px solid #333; 
+            color: #fff; border-radius: 8px; margin-bottom: 12px; font-size: 15px; outline: none;
+        }
+        .ntx-btn { 
+            width: 100%; padding: 15px; background: var(--ntx-red); color: #fff; 
+            border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase;
         }
 
-        nav button {
-            background: none;
-            border: none;
-            color: #aaa;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
+        /* LISTES ADMIN */
+        .adm-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px; border-bottom: 1px solid #1a1a1a; gap: 10px; font-size: 14px;
         }
+        .adm-actions { display: flex; gap: 5px; }
+        .btn-mini { padding: 6px 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; cursor: pointer; }
+        .btn-del { color: #ff4444; border-color: #522; }
 
-        nav button.active { color: var(--primary); }
-
-        /* Pages */
-        .page { display: none; padding: 20px; flex-grow: 1; overflow-y: auto; }
-        .page.active { display: block; }
-
-        /* Lecteur Vidéo */
-        .video-section { max-width: 900px; margin: 0 auto; }
-        video {
-            width: 100%;
-            background: #000;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* RESPONSIVE TELEPHONE */
+        @media (max-width: 768px) {
+            .card { min-width: 160px; width: 160px; }
+            .row-title { font-size: 17px; }
+            .nav-link { font-size: 11px; }
+            .adm-item { flex-direction: column; align-items: flex-start; }
+            .adm-actions { width: 100%; justify-content: flex-end; }
         }
-
-        /* Grille de chaînes */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .channel-card {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-
-        .channel-card:hover { border-color: var(--primary); transform: translateY(-3px); }
-
-        /* Formulaire Paramètres */
-        .admin-box {
-            max-width: 500px;
-            margin: 0 auto;
-            background: var(--card);
-            padding: 25px;
-            border-radius: 15px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        .btn-add {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #2a2a2a;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-        }
-
-        .btn-del { color: #ff3e3e; cursor: pointer; background: none; border: none; }
     </style>
 </head>
 <body>
 
 <nav>
-    <button onclick="openPage('home')" id="nav-home" class="active">LECTEUR</button>
-    <button onclick="openPage('settings')" id="nav-settings">PARAMÈTRES / AJOUTER</button>
+    <div class="logo">TV_NTX</div>
+    <div class="nav-links">
+        <span class="nav-link active" id="tab-home" onclick="showSection('home')">Accueil</span>
+        <span class="nav-link nav-link-adm" id="tab-admin" onclick="showSection('admin')">Admin</span>
+    </div>
 </nav>
 
-<div id="home" class="page active">
-    <div class="video-section">
-        <video id="video" controls autoplay></video>
-        <h2 id="playing-title" style="margin-top: 15px;">Sélectionnez une chaîne</h2>
+<div id="sec-home" class="main-content">
+    <div class="player-section">
+        <video id="player" controls playsinline></video>
     </div>
-    <div id="channel-list" class="grid">
-        </div>
+    <div id="playing-title" class="now-playing">Aucune chaîne en cours</div>
+
+    <div class="filter-wrap">
+        <select id="cat-filter" class="cat-select" onchange="renderHome()">
+            </select>
+    </div>
+
+    <div id="mount-point"></div>
 </div>
 
-<div id="settings" class="page">
-    <div class="admin-box">
-        <h3>Ajouter un lien IPTV</h3>
-        <input type="text" id="nameInput" placeholder="Nom de la chaîne (ex: France 2)">
-        <input type="text" id="urlInput" placeholder="Lien (m3u8, mp4, etc.)">
-        <button class="btn-add" onclick="saveChannel()">Ajouter à ma liste</button>
+<div id="sec-admin" class="admin-page">
+    <div class="box">
+        <h3>Créer un Dossier (Catégorie)</h3>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="in-cat-name" class="ntx-input" style="margin:0" placeholder="Ex: Sport, Cinéma...">
+            <button class="ntx-btn" style="width:120px" onclick="addCategory()">Créer</button>
+        </div>
+        <div id="list-cats" style="margin-top:15px;"></div>
+    </div>
 
-        <h3 style="margin-top: 30px;">Ma Liste</h3>
-        <div id="manage-list"></div>
+    <div class="box">
+        <h3>Ajouter une Chaîne</h3>
+        <input type="text" id="in-ch-name" class="ntx-input" placeholder="Nom de la chaîne">
+        <input type="text" id="in-ch-url" class="ntx-input" placeholder="Lien Flux (m3u8)">
+        <input type="text" id="in-ch-logo" class="ntx-input" placeholder="Lien Logo PNG (Optionnel)">
+        <select id="in-ch-cat" class="ntx-input"></select>
+        <button class="ntx-btn" onclick="addChannel()">Ajouter au catalogue</button>
+        <div id="list-chans" style="margin-top:20px;"></div>
     </div>
 </div>
 
 <script>
-    const video = document.getElementById('video');
-    const hls = new Hls();
+    // STOCKAGE LOCAL
+    let categories = JSON.parse(localStorage.getItem('ntx_cats')) || ["TNT", "FILMS"];
+    let channels = JSON.parse(localStorage.getItem('ntx_chans')) || [];
 
-    // 1. Charger les données du LocalStorage
-    let channels = JSON.parse(localStorage.getItem('myIptvLinks')) || [];
+    // INITIALISATION
+    window.onload = () => {
+        refreshUI();
+    };
 
-    function openPage(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('nav-' + id).classList.add('active');
+    function refreshUI() {
+        renderHomeSelect();
+        renderHome();
+        renderAdminCats();
+        renderAdminChans();
     }
 
-    function saveChannel() {
-        const name = document.getElementById('nameInput').value;
-        const url = document.getElementById('urlInput').value;
-
-        if(name && url) {
-            channels.push({ name, url });
-            localStorage.setItem('myIptvLinks', JSON.stringify(channels));
-            document.getElementById('nameInput').value = '';
-            document.getElementById('urlInput').value = '';
-            renderAll();
-            alert("Chaîne ajoutée !");
-        }
+    // --- ACCUEIL ---
+    function renderHomeSelect() {
+        const sel = document.getElementById('cat-filter');
+        sel.innerHTML = '<option value="ALL">TOUTES LES CATÉGORIES</option>';
+        categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
     }
 
-    function deleteChannel(index) {
-        channels.splice(index, 1);
-        localStorage.setItem('myIptvLinks', JSON.stringify(channels));
-        renderAll();
-    }
+    function renderHome() {
+        const mount = document.getElementById('mount-point');
+        const filter = document.getElementById('cat-filter').value;
+        mount.innerHTML = '';
 
-    function playStream(url, name) {
-        document.getElementById('playing-title').innerText = "Lecture : " + name;
-        openPage('home');
+        const activeCats = filter === 'ALL' ? categories : [filter];
 
-        if (url.includes('.m3u8')) {
-            if (Hls.isSupported()) {
-                hls.loadSource(url);
-                hls.attachMedia(video);
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
+        activeCats.forEach(cat => {
+            const chs = channels.filter(x => x.cat === cat);
+            if(chs.length > 0) {
+                let html = `<div class="row-title">${cat}</div><div class="row-scroll">`;
+                chs.forEach(ch => {
+                    html += `<div class="card" onclick="play('${ch.url}', '${ch.name}')">
+                        <img src="${ch.logo || 'https://via.placeholder.com/300x168/111/333?text='+ch.name}">
+                    </div>`;
+                });
+                html += `</div>`;
+                mount.innerHTML += html;
             }
-        } else {
-            // Pour les liens MP4 ou autres directs
-            video.src = url;
-        }
-        video.play();
-    }
-
-    function renderAll() {
-        const channelList = document.getElementById('channel-list');
-        const manageList = document.getElementById('manage-list');
-        
-        channelList.innerHTML = '';
-        manageList.innerHTML = '';
-
-        channels.forEach((item, index) => {
-            // Ajout à la grille d'accueil
-            const card = document.createElement('div');
-            card.className = 'channel-card';
-            card.innerHTML = `<strong>${item.name}</strong>`;
-            card.onclick = () => playStream(item.url, item.name);
-            channelList.appendChild(card);
-
-            // Ajout à la liste de gestion
-            const listItem = document.createElement('div');
-            listItem.className = 'list-item';
-            listItem.innerHTML = `
-                <span>${item.name}</span>
-                <button class="btn-del" onclick="deleteChannel(${index})">Supprimer</button>
-            `;
-            manageList.appendChild(listItem);
         });
     }
 
-    // Initialisation
-    renderAll();
+    const hls = new Hls();
+    function play(url, name) {
+        const video = document.getElementById('player');
+        document.getElementById('playing-title').innerText = "DIRECT : " + name;
+        if (Hls.isSupported()) {
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = url;
+            video.play();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- ADMIN ---
+    function addCategory() {
+        const val = document.getElementById('in-cat-name').value.trim();
+        if(val && !categories.includes(val)) {
+            categories.push(val);
+            saveAndRefresh();
+            document.getElementById('in-cat-name').value = '';
+        }
+    }
+
+    function addChannel() {
+        const name = document.getElementById('in-ch-name').value.trim();
+        const url = document.getElementById('in-ch-url').value.trim();
+        const logo = document.getElementById('in-ch-logo').value.trim();
+        const cat = document.getElementById('in-ch-cat').value;
+        if(name && url) {
+            channels.push({ name, url, logo, cat });
+            saveAndRefresh();
+            document.getElementById('in-ch-name').value = '';
+            document.getElementById('in-ch-url').value = '';
+        }
+    }
+
+    function renderAdminCats() {
+        const list = document.getElementById('list-cats');
+        list.innerHTML = '';
+        categories.forEach((c, i) => {
+            list.innerHTML += `<div class="adm-item"><span>${c}</span>
+            <button class="btn-mini btn-del" onclick="removeCat(${i})">Supprimer</button></div>`;
+        });
+        // Sync select
+        const sel = document.getElementById('in-ch-cat');
+        sel.innerHTML = '';
+        categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
+    function renderAdminChans() {
+        const list = document.getElementById('list-chans');
+        list.innerHTML = '<h4>Gérer mes chaînes :</h4>';
+        channels.forEach((ch, i) => {
+            list.innerHTML += `<div class="adm-item">
+                <span><b>[${ch.cat}]</b> ${ch.name}</span>
+                <div class="adm-actions">
+                    <button class="btn-mini" onclick="moveCh(${i}, -1)">↑</button>
+                    <button class="btn-mini" onclick="moveCh(${i}, 1)">↓</button>
+                    <button class="btn-mini btn-del" onclick="removeCh(${i})">X</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function removeCat(i) { categories.splice(i, 1); saveAndRefresh(); }
+    function removeCh(i) { channels.splice(i, 1); saveAndRefresh(); }
+    function moveCh(idx, dir) {
+        let t = idx + dir;
+        if(t >= 0 && t < channels.length) {
+            [channels[idx], channels[t]] = [channels[t], channels[idx]];
+            saveAndRefresh();
+        }
+    }
+
+    function saveAndRefresh() {
+        localStorage.setItem('ntx_cats', JSON.stringify(categories));
+        localStorage.setItem('ntx_chans', JSON.stringify(channels));
+        refreshUI();
+    }
+
+    function showSection(id) {
+        document.getElementById('sec-home').style.display = (id === 'home' ? 'block' : 'none');
+        document.getElementById('sec-admin').style.display = (id === 'admin' ? 'block' : 'none');
+        document.getElementById('tab-home').classList.toggle('active', id === 'home');
+        document.getElementById('tab-admin').classList.toggle('active', id === 'admin');
+    }
 </script>
 
 </body>
