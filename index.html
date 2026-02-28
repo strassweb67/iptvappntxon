@@ -2,319 +2,265 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV_NTX | PANNEAU DE CONTRÔLE MASTER</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BJVidéo - Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --ntx-red: #e50914; --bg: #000; --card: #141414; --border: rgba(255,255,255,0.1); }
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100%; }
-
-        /* FOND ANIMÉ */
-        .bg-animated { position: fixed; inset: 0; z-index: -1; background: #000; overflow: hidden; }
-        .film-strip { position: absolute; width: 10%; height: 300%; background: linear-gradient(to bottom, transparent, rgba(229, 9, 20, 0.03), transparent); transform: rotate(20deg); top: -100%; animation: moveStrip 25s linear infinite; }
-        @keyframes moveStrip { from { transform: translateY(0); } to { transform: translateY(33.3%); } }
-
-        /* LOADER 0.9s */
-        #master-loader { position: fixed; inset: 0; background: #000; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        .ring { width: 50px; height: 50px; border: 3px solid rgba(229,9,20,0.1); border-top: 3px solid var(--ntx-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* CONNEXION */
-        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-card { width: 100%; max-width: 380px; padding: 40px 30px; background: rgba(15,15,15,0.95); border: 1px solid var(--border); border-radius: 15px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .logo { font-weight: 900; font-size: clamp(30px, 8vw, 45px); color: var(--ntx-red); letter-spacing: -3px; margin-bottom: 30px; }
-        
-        .ntx-input { width: 100%; padding: 15px; background: #111; border: 1px solid #333; color: #fff; border-radius: 8px; margin-bottom: 12px; font-size: 16px; outline: none; transition: 0.3s; }
-        .ntx-input:focus { border-color: var(--ntx-red); }
-        .ntx-btn { width: 100%; padding: 16px; background: var(--ntx-red); color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; text-transform: uppercase; }
-
-        /* NAVIGATION */
-        nav { position: fixed; top: 0; width: 100%; height: 70px; display: none; align-items: center; padding: 0 5%; z-index: 10000; background: rgba(0,0,0,0.95); border-bottom: 1px solid var(--border); }
-        .nav-links { margin-left: auto; display: flex; gap: 15px; }
-        .nav-link { font-size: 13px; font-weight: 700; cursor: pointer; color: #888; text-transform: uppercase; }
-        .nav-link.active { color: var(--ntx-red); }
-
-        /* INTERFACE CLIENT */
-        .container { max-width: 1400px; margin: 0 auto; padding: 90px 4% 30px; }
-        .player-box { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 0 30px rgba(229,9,20,0.2); }
-        video { width: 100%; height: 100%; }
-
-        .selector-box { margin: 20px 0; }
-        .cat-select { background: #111; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 8px; width: 100%; max-width: 300px; font-weight: 600; cursor: pointer; }
-
-        .row-title { font-size: 22px; font-weight: 800; margin: 30px 0 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .row-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
-        .row-scroll::-webkit-scrollbar { display: none; }
-        .card { min-width: clamp(160px, 40vw, 240px); aspect-ratio: 16/9; background: var(--card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.3s; overflow: hidden; }
-        .card:hover { transform: scale(1.05); border-color: var(--ntx-red); }
-        .card img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
-
-        /* PANNEAU ADMIN */
-        .admin-page { display: none; padding: 100px 4% 50px; max-width: 1000px; margin: 0 auto; }
-        .box { background: #0a0a0a; padding: 25px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #222; }
-        .box h3 { margin-top: 0; color: var(--ntx-red); font-size: 18px; text-transform: uppercase; }
-
-        .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #1a1a1a; gap: 10px; }
-        .admin-item:last-child { border-bottom: none; }
-        .admin-info { flex-grow: 1; font-size: 14px; line-height: 1.4; }
-        .admin-actions { display: flex; gap: 5px; }
-        
-        .small-btn { padding: 8px 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; cursor: pointer; font-size: 12px; }
-        .btn-red { color: #ff4444 !important; border-color: #552222 !important; }
-
-        @media (max-width: 600px) {
-            .admin-item { flex-direction: column; align-items: flex-start; }
-            .admin-actions { margin-top: 10px; width: 100%; justify-content: flex-end; }
+        :root {
+            --neon-red: #ff0000;
+            --netflix-red: #E50914;
+            --bg-black: #080808;
+            --card-bg: #141414;
+            --nav-height: 70px;
         }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-black);
+            color: white; margin: 0; overflow-x: hidden;
+        }
+
+        /* --- SÉLECTEUR DE PROFIL --- */
+        #profile-selector {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .profile-grid { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .profile-card { text-align: center; cursor: pointer; width: 140px; transition: 0.3s; }
+        .profile-card:hover { transform: scale(1.1); }
+        .avatar { 
+            width: 120px; height: 120px; border-radius: 4px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+            background: #333; border: 3px solid transparent;
+        }
+        .profile-card:hover .avatar { border-color: white; }
+
+        /* --- NAVIGATION NÉON --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: var(--nav-height);
+            display: flex; align-items: center; padding: 0 4%; box-sizing: border-box;
+            background: rgba(0,0,0,0.9); z-index: 2000; border-bottom: 1px solid rgba(255,0,0,0.2);
+        }
+        .logo { color: var(--neon-red); font-size: 28px; font-weight: bold; text-decoration: none; text-shadow: 0 0 10px var(--neon-red); margin-right: 40px; }
+        .nav-links { display: flex; gap: 15px; flex-grow: 1; }
+        
+        /* Boutons Néon */
+        .btn-neon {
+            background: transparent; border: 2px solid var(--neon-red); color: white;
+            padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;
+            transition: 0.3s; text-transform: uppercase; font-size: 12px;
+        }
+        .btn-neon:hover { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
+
+        /* --- HERO & LECTEUR --- */
+        .hero { 
+            height: 60vh; width: 100%; position: relative;
+            background: linear-gradient(to bottom, transparent, var(--bg-black)), 
+                        url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover; background-position: center; filter: brightness(0.4) blur(2px);
+        }
+        .video-container {
+            max-width: 1000px; margin: -30vh auto 40px; position: relative; z-index: 100;
+            background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+        video { width: 100%; aspect-ratio: 16/9; display: block; }
+
+        /* --- GRILLE STYLE MOLOTOV --- */
+        .row { padding: 0 4% 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .item-card {
+            background: #111; border-radius: 6px; overflow: hidden; cursor: pointer;
+            transition: 0.3s; border: 1px solid #222;
+        }
+        .item-card:hover { border-color: var(--neon-red); transform: translateY(-5px); }
+        .img-container { 
+            width: 100%; height: 110px; background: #000; 
+            display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;
+        }
+        .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .item-title { padding: 10px; font-size: 13px; text-align: center; font-weight: bold; background: #181818; }
+
+        /* --- PANNEAUX (ADMIN & COMPTE) --- */
+        .panel { display: none; padding: 100px 4% 40px; max-width: 800px; margin: 0 auto; }
+        .box { background: #141414; padding: 30px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
+        .save-btn { background: var(--neon-red); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; margin-top: 10px; }
+
     </style>
 </head>
 <body>
 
-<div id="master-loader">
-    <div class="ring"></div>
-    <p id="loader-msg" style="margin-top: 20px; font-weight: 800; color: var(--ntx-red); font-size: 14px;"></p>
+<div id="profile-selector">
+    <h1 style="margin-bottom: 50px;">Qui regarde BJVidéo ?</h1>
+    <div id="profile-list" class="profile-grid"></div>
 </div>
 
-<div class="bg-animated" id="bg-anim"></div>
-
-<div id="login-page">
-    <div class="login-card">
-        <div class="logo">TV_NTX</div>
-        <input type="text" id="l-user" class="ntx-input" placeholder="Identifiant">
-        <input type="password" id="l-pass" class="ntx-input" placeholder="Mot de passe">
-        <button class="ntx-btn" onclick="handleLogin()">ACCÉDER AU FLUX</button>
-        <p style="font-size: 10px; color: #444; margin-top: 25px; letter-spacing: 1px;">PRIVATE SERVER | BRICE JCT</p>
-    </div>
-</div>
-
-<nav id="navbar">
-    <div class="logo" style="font-size: 20px; margin:0;">TV_NTX</div>
+<nav>
+    <a href="#" onclick="location.reload()" class="logo">BJVidéo</a>
     <div class="nav-links">
-        <span class="nav-link active" id="btn-home" onclick="showSection('home')">Accueil</span>
-        <span class="nav-link" id="btn-admin" style="display:none; border:1px solid var(--ntx-red); padding:2px 8px; border-radius:4px;" onclick="showSection('admin')">ADMIN</span>
-        <span class="nav-link" onclick="location.reload()">OFF</span>
+        <button class="btn-neon" onclick="showPage('home')">Accueil</button>
+        <button class="btn-neon" onclick="showPage('account')">Mon Compte</button>
+        <button id="admin-btn" class="btn-neon" style="display:none;" onclick="showPage('admin')">Configuration Site</button>
     </div>
 </nav>
 
-<div id="sec-home" class="container" style="display:none;">
-    <div class="selector-box">
-        <select id="home-cat-filter" class="cat-select" onchange="renderHome()"></select>
+<div id="page-home" class="content-page" style="display:block;">
+    <div class="hero"></div>
+    <div class="video-container">
+        <video id="main-player" controls autoplay></video>
+        <h3 id="now-playing" style="text-align: center; color: var(--neon-red); padding: 10px;">Sélectionnez un contenu</h3>
     </div>
-    <div class="player-box">
-        <video id="main-video" controls playsinline></video>
-    </div>
-    <p id="video-title" style="margin-top:15px; font-weight:700; color:var(--ntx-red);">PRÊT À DIFFUSER</p>
-    <div id="home-rows-mount"></div>
+
+    <div class="row"><h2>📺 Chaînes TV</h2><div id="grid-tv" class="grid"></div></div>
+    <div class="row"><h2>🎬 Films & Séries</h2><div id="grid-movie" class="grid"></div></div>
+    <div class="row"><h2>📻 Radios</h2><div id="grid-radio" class="grid"></div></div>
 </div>
 
-<div id="sec-admin" class="admin-page">
-    
+<div id="page-account" class="panel">
     <div class="box">
-        <h3>1. Dossiers (Catégories)</h3>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="adm-new-cat" class="ntx-input" style="margin:0" placeholder="Nom du dossier">
-            <button class="ntx-btn" style="width:120px;" onclick="addCategory()">CRÉER</button>
-        </div>
-        <div id="adm-list-cats" style="margin-top:15px;"></div>
+        <h2>Paramètres de mon compte</h2>
+        <p>Utilisateur : <strong id="display-user"></strong></p>
+        <input type="password" id="new-mdp" placeholder="Nouveau mot de passe">
+        <button class="save-btn" onclick="updatePassword()">SAUVEGARDER MON MOT DE PASSE</button>
     </div>
+</div>
 
+<div id="page-admin" class="panel">
     <div class="box">
-        <h3>2. Ajouter une Chaîne</h3>
-        <input type="text" id="adm-ch-name" class="ntx-input" placeholder="Nom de la chaîne">
-        <input type="text" id="adm-ch-url" class="ntx-input" placeholder="Lien m3u8">
-        <input type="text" id="adm-ch-logo" class="ntx-input" placeholder="URL Logo (Optionnel)">
-        <select id="adm-ch-cat" class="ntx-input"></select>
-        <button class="ntx-btn" onclick="addChannel()">PUBLIER LA CHAÎNE</button>
-        <div id="adm-list-chans" style="margin-top:20px;"></div>
+        <h2 style="color:var(--neon-red)">Configuration du Site (Admin Uniquement)</h2>
+        <input type="text" id="add-name" placeholder="Nom">
+        <input type="text" id="add-url" placeholder="Lien du flux (m3u8, mp4...)">
+        <input type="text" id="add-logo" placeholder="URL du logo (PNG/JPG)">
+        <select id="add-type">
+            <option value="tv">Chaîne TV</option>
+            <option value="movie">Film / Série</option>
+            <option value="radio">Radio</option>
+        </select>
+        <button class="save-btn" onclick="addContent()">AJOUTER AU CATALOGUE</button>
     </div>
-
-    <div class="box">
-        <h3>3. Gestion des Comptes Clients</h3>
-        <input type="text" id="adm-u-id" class="ntx-input" placeholder="Identifiant">
-        <input type="text" id="adm-u-pass" class="ntx-input" placeholder="Mot de passe">
-        <input type="date" id="adm-u-date" class="ntx-input">
-        <button class="ntx-btn" onclick="addUser()">CRÉER CLIENT</button>
-        <div id="adm-list-users" style="margin-top:20px;"></div>
-    </div>
-
-    <div class="box" style="text-align:center;">
-        <button class="ntx-btn" style="background:#222; margin-bottom:10px;" onclick="setGlobalKill(true)">COUPER TOUT LE SERVEUR</button>
-        <button class="ntx-btn" style="background:green;" onclick="setGlobalKill(false)">RÉTABLIR LE SERVEUR</button>
-    </div>
+    <div class="box" id="admin-manage-list"></div>
 </div>
 
 <script>
-    // --- BASE DE DONNÉES ---
-    let users = JSON.parse(localStorage.getItem('ntx_u_db')) || [
-        { id: 'bricej', mdp: '07061999', role: 'admin', expire: null },
-        { id: 'Mariej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31' },
-        { id: 'Hervej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31' },
-        { id: 'Gauthierr', mdp: 'Rauch67', role: 'user', expire: '2026-12-31' },
-        { id: 'Smart100', mdp: 'Smart100', role: 'user', expire: null }
+    // 1. Initialisation des comptes et de la base
+    const defaultAccounts = [
+        { name: 'Admin', mdp: 'Treza670', role: 'admin', color: '#ff0000' },
+        { name: 'Smart100', mdp: 'Smart100', role: 'user', color: '#2b90d9' },
+        { name: 'Herce', mdp: 'Schiltigheim67*', role: 'user', color: '#e50914' },
+        { name: 'Marie Christine', mdp: 'Schiltigheim67*', role: 'user', color: '#b926d5' },
+        { name: 'Gauthier', mdp: 'gauthierrauch67', role: 'user', color: '#2ecc71' }
     ];
-    let categories = JSON.parse(localStorage.getItem('ntx_c_db')) || ["TNT", "CANAL", "SPORT"];
-    let channels = JSON.parse(localStorage.getItem('ntx_h_db')) || [];
-    let isGlobalKill = localStorage.getItem('ntx_kill') === 'true';
 
-    // Fond animé
-    for(let i=0; i<10; i++){
-        let d = document.createElement('div'); d.className='film-strip'; d.style.left=(i*11)+'%';
-        document.getElementById('bg-anim').appendChild(d);
+    let accounts = JSON.parse(localStorage.getItem('bjvideo_accounts')) || defaultAccounts;
+    let library = JSON.parse(localStorage.getItem('bjvideo_library')) || [];
+    let currentUser = null;
+    
+    const player = document.getElementById('main-player');
+    const hls = new Hls();
+
+    // 2. Gestion des profils
+    function initProfiles() {
+        const list = document.getElementById('profile-list');
+        list.innerHTML = '';
+        accounts.forEach((acc, idx) => {
+            list.innerHTML += `
+                <div class="profile-card" onclick="login(${idx})">
+                    <div class="avatar" style="background:${acc.color}">${acc.name[0]}</div>
+                    <p>${acc.name}</p>
+                </div>`;
+        });
     }
 
-    // --- CONNEXION ---
-    function handleLogin() {
-        const u = document.getElementById('l-user').value.trim();
-        const p = document.getElementById('l-pass').value.trim();
-        const found = users.find(x => x.id === u && x.mdp === p);
-
-        if(!found) return alert("Accès refusé.");
-        
-        if(found.expire && new Date(found.expire) < new Date()) {
-            return alert("Accès refusé. Merci de régler votre paiement mensuel. Contactez brice à Strassweb67@gmail.com.");
+    function login(idx) {
+        const pass = prompt(`Mot de passe pour ${accounts[idx].name} :`);
+        if (pass === accounts[idx].mdp) {
+            currentUser = accounts[idx];
+            document.getElementById('profile-selector').style.display = 'none';
+            document.getElementById('display-user').innerText = currentUser.name;
+            if (currentUser.role === 'admin') document.getElementById('admin-btn').style.display = 'block';
+            render();
+        } else {
+            alert("Mot de passe incorrect !");
         }
-
-        const msg = found.expire ? `ACTIF JUSQU'AU ${found.expire}` : "COMPTE ACTIF SANS LIMITE";
-        document.getElementById('loader-msg').innerText = msg;
-        document.getElementById('master-loader').style.display = 'flex';
-
-        setTimeout(() => {
-            document.getElementById('master-loader').style.display = 'none';
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('navbar').style.display = 'flex';
-            document.getElementById('sec-home').style.display = 'block';
-            if(found.role === 'admin') document.getElementById('btn-admin').style.display = 'block';
-            document.querySelectorAll('.film-strip').forEach(s => s.style.opacity = "0.05");
-            refreshAll();
-        }, 900);
     }
 
-    function refreshAll() {
-        renderHomeMenu();
-        renderHome();
-        renderAdminCats();
-        renderAdminChans();
-        renderAdminUsers();
+    // 3. Navigation
+    function showPage(id) {
+        document.querySelectorAll('.content-page, .panel').forEach(p => p.style.display = 'none');
+        document.getElementById('page-' + id).style.display = 'block';
+        window.scrollTo(0,0);
     }
 
-    // --- LOGIQUE CLIENT ---
-    function renderHomeMenu() {
-        const s = document.getElementById('home-cat-filter');
-        s.innerHTML = '<option value="ALL">TOUS LES DOSSIERS</option>';
-        categories.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
+    // 4. Gestion MDP
+    function updatePassword() {
+        const newPass = document.getElementById('new-mdp').value;
+        if(newPass) {
+            currentUser.mdp = newPass;
+            localStorage.setItem('bjvideo_accounts', JSON.stringify(accounts));
+            alert("Mot de passe mis à jour et sauvegardé !");
+            document.getElementById('new-mdp').value = '';
+        }
     }
 
-    function renderHome() {
-        const mount = document.getElementById('home-rows-mount');
-        const filter = document.getElementById('home-cat-filter').value;
-        mount.innerHTML = '';
-        const targetCats = filter === 'ALL' ? categories : [filter];
+    // 5. Gestion Catalogue
+    function addContent() {
+        const name = document.getElementById('add-name').value;
+        const url = document.getElementById('add-url').value;
+        const logo = document.getElementById('add-logo').value;
+        const type = document.getElementById('add-type').value;
 
-        targetCats.forEach(cat => {
-            const chs = channels.filter(x => x.cat === cat);
-            if(chs.length > 0) {
-                let html = `<div class="row-title">${cat}</div><div class="row-scroll">`;
-                chs.forEach(ch => {
-                    html += `<div class="card" onclick="play('${ch.url}', '${ch.name}')">
-                        <img src="${ch.logo || 'https://via.placeholder.com/300x168/111/333?text='+ch.name}">
-                    </div>`;
-                });
-                html += `</div>`;
-                mount.innerHTML += html;
+        if(name && url) {
+            library.push({ name, url, logo, type });
+            localStorage.setItem('bjvideo_library', JSON.stringify(library));
+            render();
+            alert("Ajouté et sauvegardé !");
+        }
+    }
+
+    function deleteItem(idx) {
+        if(confirm("Supprimer ?")) {
+            library.splice(idx, 1);
+            localStorage.setItem('bjvideo_library', JSON.stringify(library));
+            render();
+        }
+    }
+
+    function play(url, name) {
+        document.getElementById('now-playing').innerText = "Lecture : " + name;
+        if (url.includes('.m3u8')) {
+            if (Hls.isSupported()) { hls.loadSource(url); hls.attachMedia(player); }
+        } else { player.src = url; }
+        player.play();
+        window.scrollTo({top: 200, behavior: 'smooth'});
+    }
+
+    // 6. Rendu
+    function render() {
+        const grids = { tv: document.getElementById('grid-tv'), movie: document.getElementById('grid-movie'), radio: document.getElementById('grid-radio') };
+        const adminList = document.getElementById('admin-manage-list');
+        Object.values(grids).forEach(g => g.innerHTML = '');
+        adminList.innerHTML = '<h3>Liste actuelle :</h3>';
+
+        library.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div class="img-container"><img src="${item.logo || 'https://via.placeholder.com/150'}"></div>
+                <div class="item-title">${item.name}</div>
+            `;
+            card.onclick = () => play(item.url, item.name);
+            if(grids[item.type]) grids[item.type].appendChild(card);
+
+            if(currentUser.role === 'admin') {
+                adminList.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
+                    <span>${item.name}</span> <button onclick="deleteItem(${idx})" style="color:red; background:none; border:none; cursor:pointer">X</button>
+                </div>`;
             }
         });
     }
 
-    const hls = new Hls();
-    function play(url, name) {
-        if(isGlobalKill && users.find(u => u.role === 'admin').id !== 'bricej') return alert("Le serveur est en maintenance.");
-        document.getElementById('video-title').innerText = "DIFFUSION : " + name;
-        hls.loadSource(url); hls.attachMedia(document.getElementById('main-video'));
-        hls.on(Hls.Events.MANIFEST_PARSED, () => document.getElementById('main-video').play());
-    }
-
-    // --- LOGIQUE ADMIN ---
-    function addCategory() {
-        const n = document.getElementById('adm-new-cat').value.trim();
-        if(n && !categories.includes(n)) { categories.push(n); save(); refreshAll(); }
-    }
-
-    function addChannel() {
-        const n = document.getElementById('adm-ch-name').value;
-        const u = document.getElementById('adm-ch-url').value;
-        const l = document.getElementById('adm-ch-logo').value;
-        const c = document.getElementById('adm-ch-cat').value;
-        if(n && u) { channels.push({name:n, url:u, logo:l, cat:c}); save(); refreshAll(); }
-    }
-
-    function addUser() {
-        const n = document.getElementById('adm-u-id').value;
-        const p = document.getElementById('adm-u-pass').value;
-        const d = document.getElementById('adm-u-date').value;
-        if(n && p) { users.push({id:n, mdp:p, role:'user', expire:d||null}); save(); refreshAll(); }
-    }
-
-    function renderAdminCats() {
-        const mount = document.getElementById('adm-list-cats');
-        mount.innerHTML = '';
-        categories.forEach((c, i) => {
-            mount.innerHTML += `<div class="admin-item"><span>${c}</span>
-            <button class="small-btn btn-red" onclick="categories.splice(${i},1); save(); refreshAll();">Supprimer</button></div>`;
-        });
-        const sel = document.getElementById('adm-ch-cat');
-        sel.innerHTML = '';
-        categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-    }
-
-    function renderAdminChans() {
-        const mount = document.getElementById('adm-list-chans');
-        mount.innerHTML = '<h4>Chaînes & Ordre</h4>';
-        channels.forEach((ch, i) => {
-            mount.innerHTML += `<div class="admin-item">
-                <div class="admin-info"><b>[${ch.cat}]</b> ${ch.name}</div>
-                <div class="admin-actions">
-                    <button class="small-btn" onclick="moveCh(${i}, -1)">↑</button>
-                    <button class="small-btn" onclick="moveCh(${i}, 1)">↓</button>
-                    <button class="small-btn btn-red" onclick="channels.splice(${i},1); save(); refreshAll();">X</button>
-                </div>
-            </div>`;
-        });
-    }
-
-    function moveCh(idx, dir) {
-        let t = idx + dir;
-        if(t >= 0 && t < channels.length) { [channels[idx], channels[t]] = [channels[t], channels[idx]]; save(); refreshAll(); }
-    }
-
-    function renderAdminUsers() {
-        const mount = document.getElementById('adm-list-users');
-        mount.innerHTML = '<h4>Clients Enregistrés</h4>';
-        users.forEach((u, i) => {
-            if(u.role === 'admin') return;
-            mount.innerHTML += `<div class="admin-item">
-                <div class="admin-info"><b>${u.id}</b><br>Mdp: ${u.mdp} | Exp: ${u.expire||'∞'}</div>
-                <button class="small-btn btn-red" onclick="users.splice(${i},1); save(); refreshAll();">Supprimer</button>
-            </div>`;
-        });
-    }
-
-    function save() {
-        localStorage.setItem('ntx_u_db', JSON.stringify(users));
-        localStorage.setItem('ntx_c_db', JSON.stringify(categories));
-        localStorage.setItem('ntx_h_db', JSON.stringify(channels));
-    }
-
-    function setGlobalKill(val) { isGlobalKill = val; localStorage.setItem('ntx_kill', val); alert(val?"Serveur COUPÉ":"Serveur RÉTABLI"); }
-
-    function showSection(id) {
-        document.getElementById('sec-home').style.display = (id==='home'?'block':'none');
-        document.getElementById('sec-admin').style.display = (id==='admin'?'block':'none');
-        document.getElementById('btn-home').classList.toggle('active', id==='home');
-        document.getElementById('btn-admin').classList.toggle('active', id==='admin');
-    }
+    initProfiles();
 </script>
 </body>
 </html>
