@@ -3,264 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJVidéo - Premium</title>
+    <title>RED STREAM - Netflix Style</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-red: #ff0000;
             --netflix-red: #E50914;
-            --bg-black: #080808;
-            --card-bg: #141414;
-            --nav-height: 70px;
+            --bg-black: #141414;
+            --nav-black: rgba(0, 0, 0, 0.7);
+            --card-hover: #2f2f2f;
         }
 
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             background-color: var(--bg-black);
-            color: white; margin: 0; overflow-x: hidden;
+            color: white;
+            margin: 0;
+            overflow-x: hidden;
         }
 
-        /* --- SÉLECTEUR DE PROFIL --- */
+        /* --- SÉLECTEUR DE PROFILS --- */
         #profile-selector {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: fixed;
+            inset: 0;
+            background: var(--bg-black);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .profile-grid { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
-        .profile-card { text-align: center; cursor: pointer; width: 140px; transition: 0.3s; }
-        .profile-card:hover { transform: scale(1.1); }
-        .avatar { 
-            width: 120px; height: 120px; border-radius: 4px; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: center; font-size: 40px;
-            background: #333; border: 3px solid transparent;
-        }
-        .profile-card:hover .avatar { border-color: white; }
 
-        /* --- NAVIGATION NÉON --- */
+        .profile-list {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .profile-item {
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 4px;
+            background: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            margin-bottom: 10px;
+            border: 3px solid transparent;
+        }
+
+        .profile-item:hover .profile-avatar { border-color: white; }
+        .profile-item:hover p { color: white; }
+        .profile-item p { color: #808080; font-size: 1.2rem; margin: 0; }
+
+        /* --- BARRE DE NAVIGATION STYLE NETFLIX --- */
         nav {
-            position: fixed; top: 0; width: 100%; height: var(--nav-height);
-            display: flex; align-items: center; padding: 0 4%; box-sizing: border-box;
-            background: rgba(0,0,0,0.9); z-index: 2000; border-bottom: 1px solid rgba(255,0,0,0.2);
-        }
-        .logo { color: var(--neon-red); font-size: 28px; font-weight: bold; text-decoration: none; text-shadow: 0 0 10px var(--neon-red); margin-right: 40px; }
-        .nav-links { display: flex; gap: 15px; flex-grow: 1; }
-        
-        /* Boutons Néon */
-        .btn-neon {
-            background: transparent; border: 2px solid var(--neon-red); color: white;
-            padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;
-            transition: 0.3s; text-transform: uppercase; font-size: 12px;
-        }
-        .btn-neon:hover { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
-
-        /* --- HERO & LECTEUR --- */
-        .hero { 
-            height: 60vh; width: 100%; position: relative;
-            background: linear-gradient(to bottom, transparent, var(--bg-black)), 
-                        url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover; background-position: center; filter: brightness(0.4) blur(2px);
-        }
-        .video-container {
-            max-width: 1000px; margin: -30vh auto 40px; position: relative; z-index: 100;
-            background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-        }
-        video { width: 100%; aspect-ratio: 16/9; display: block; }
-
-        /* --- GRILLE STYLE MOLOTOV --- */
-        .row { padding: 0 4% 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-        .item-card {
-            background: #111; border-radius: 6px; overflow: hidden; cursor: pointer;
-            transition: 0.3s; border: 1px solid #222;
-        }
-        .item-card:hover { border-color: var(--neon-red); transform: translateY(-5px); }
-        .img-container { 
-            width: 100%; height: 110px; background: #000; 
-            display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;
-        }
-        .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .item-title { padding: 10px; font-size: 13px; text-align: center; font-weight: bold; background: #181818; }
-
-        /* --- PANNEAUX (ADMIN & COMPTE) --- */
-        .panel { display: none; padding: 100px 4% 40px; max-width: 800px; margin: 0 auto; }
-        .box { background: #141414; padding: 30px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
-        .save-btn { background: var(--neon-red); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; margin-top: 10px; }
-
-    </style>
-</head>
-<body>
-
-<div id="profile-selector">
-    <h1 style="margin-bottom: 50px;">Qui regarde BJVidéo ?</h1>
-    <div id="profile-list" class="profile-grid"></div>
-</div>
-
-<nav>
-    <a href="#" onclick="location.reload()" class="logo">BJVidéo</a>
-    <div class="nav-links">
-        <button class="btn-neon" onclick="showPage('home')">Accueil</button>
-        <button class="btn-neon" onclick="showPage('account')">Mon Compte</button>
-        <button id="admin-btn" class="btn-neon" style="display:none;" onclick="showPage('admin')">Configuration Site</button>
-    </div>
-</nav>
-
-<div id="page-home" class="content-page" style="display:block;">
-    <div class="hero"></div>
-    <div class="video-container">
-        <video id="main-player" controls autoplay></video>
-        <h3 id="now-playing" style="text-align: center; color: var(--neon-red); padding: 10px;">Sélectionnez un contenu</h3>
-    </div>
-
-    <div class="row"><h2>📺 Chaînes TV</h2><div id="grid-tv" class="grid"></div></div>
-    <div class="row"><h2>🎬 Films & Séries</h2><div id="grid-movie" class="grid"></div></div>
-    <div class="row"><h2>📻 Radios</h2><div id="grid-radio" class="grid"></div></div>
-</div>
-
-<div id="page-account" class="panel">
-    <div class="box">
-        <h2>Paramètres de mon compte</h2>
-        <p>Utilisateur : <strong id="display-user"></strong></p>
-        <input type="password" id="new-mdp" placeholder="Nouveau mot de passe">
-        <button class="save-btn" onclick="updatePassword()">SAUVEGARDER MON MOT DE PASSE</button>
-    </div>
-</div>
-
-<div id="page-admin" class="panel">
-    <div class="box">
-        <h2 style="color:var(--neon-red)">Configuration du Site (Admin Uniquement)</h2>
-        <input type="text" id="add-name" placeholder="Nom">
-        <input type="text" id="add-url" placeholder="Lien du flux (m3u8, mp4...)">
-        <input type="text" id="add-logo" placeholder="URL du logo (PNG/JPG)">
-        <select id="add-type">
-            <option value="tv">Chaîne TV</option>
-            <option value="movie">Film / Série</option>
-            <option value="radio">Radio</option>
-        </select>
-        <button class="save-btn" onclick="addContent()">AJOUTER AU CATALOGUE</button>
-    </div>
-    <div class="box" id="admin-manage-list"></div>
-</div>
-
-<script>
-    // 1. Initialisation des comptes et de la base
-    const defaultAccounts = [
-        { name: 'Admin', mdp: 'Treza670', role: 'admin', color: '#ff0000' },
-        { name: 'Smart100', mdp: 'Smart100', role: 'user', color: '#2b90d9' },
-        { name: 'Herce', mdp: 'Schiltigheim67*', role: 'user', color: '#e50914' },
-        { name: 'Marie Christine', mdp: 'Schiltigheim67*', role: 'user', color: '#b926d5' },
-        { name: 'Gauthier', mdp: 'gauthierrauch67', role: 'user', color: '#2ecc71' }
-    ];
-
-    let accounts = JSON.parse(localStorage.getItem('bjvideo_accounts')) || defaultAccounts;
-    let library = JSON.parse(localStorage.getItem('bjvideo_library')) || [];
-    let currentUser = null;
-    
-    const player = document.getElementById('main-player');
-    const hls = new Hls();
-
-    // 2. Gestion des profils
-    function initProfiles() {
-        const list = document.getElementById('profile-list');
-        list.innerHTML = '';
-        accounts.forEach((acc, idx) => {
-            list.innerHTML += `
-                <div class="profile-card" onclick="login(${idx})">
-                    <div class="avatar" style="background:${acc.color}">${acc.name[0]}</div>
-                    <p>${acc.name}</p>
-                </div>`;
-        });
-    }
-
-    function login(idx) {
-        const pass = prompt(`Mot de passe pour ${accounts[idx].name} :`);
-        if (pass === accounts[idx].mdp) {
-            currentUser = accounts[idx];
-            document.getElementById('profile-selector').style.display = 'none';
-            document.getElementById('display-user').innerText = currentUser.name;
-            if (currentUser.role === 'admin') document.getElementById('admin-btn').style.display = 'block';
-            render();
-        } else {
-            alert("Mot de passe incorrect !");
-        }
-    }
-
-    // 3. Navigation
-    function showPage(id) {
-        document.querySelectorAll('.content-page, .panel').forEach(p => p.style.display = 'none');
-        document.getElementById('page-' + id).style.display = 'block';
-        window.scrollTo(0,0);
-    }
-
-    // 4. Gestion MDP
-    function updatePassword() {
-        const newPass = document.getElementById('new-mdp').value;
-        if(newPass) {
-            currentUser.mdp = newPass;
-            localStorage.setItem('bjvideo_accounts', JSON.stringify(accounts));
-            alert("Mot de passe mis à jour et sauvegardé !");
-            document.getElementById('new-mdp').value = '';
-        }
-    }
-
-    // 5. Gestion Catalogue
-    function addContent() {
-        const name = document.getElementById('add-name').value;
-        const url = document.getElementById('add-url').value;
-        const logo = document.getElementById('add-logo').value;
-        const type = document.getElementById('add-type').value;
-
-        if(name && url) {
-            library.push({ name, url, logo, type });
-            localStorage.setItem('bjvideo_library', JSON.stringify(library));
-            render();
-            alert("Ajouté et sauvegardé !");
-        }
-    }
-
-    function deleteItem(idx) {
-        if(confirm("Supprimer ?")) {
-            library.splice(idx, 1);
-            localStorage.setItem('bjvideo_library', JSON.stringify(library));
-            render();
-        }
-    }
-
-    function play(url, name) {
-        document.getElementById('now-playing').innerText = "Lecture : " + name;
-        if (url.includes('.m3u8')) {
-            if (Hls.isSupported()) { hls.loadSource(url); hls.attachMedia(player); }
-        } else { player.src = url; }
-        player.play();
-        window.scrollTo({top: 200, behavior: 'smooth'});
-    }
-
-    // 6. Rendu
-    function render() {
-        const grids = { tv: document.getElementById('grid-tv'), movie: document.getElementById('grid-movie'), radio: document.getElementById('grid-radio') };
-        const adminList = document.getElementById('admin-manage-list');
-        Object.values(grids).forEach(g => g.innerHTML = '');
-        adminList.innerHTML = '<h3>Liste actuelle :</h3>';
-
-        library.forEach((item, idx) => {
-            const card = document.createElement('div');
-            card.className = 'item-card';
-            card.innerHTML = `
-                <div class="img-container"><img src="${item.logo || 'https://via.placeholder.com/150'}"></div>
-                <div class="item-title">${item.name}</div>
-            `;
-            card.onclick = () => play(item.url, item.name);
-            if(grids[item.type]) grids[item.type].appendChild(card);
-
-            if(currentUser.role === 'admin') {
-                adminList.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
-                    <span>${item.name}</span> <button onclick="deleteItem(${idx})" style="color:red; background:none; border:none; cursor:pointer">X</button>
-                </div>`;
-            }
-        });
-    }
-
-    initProfiles();
-</script>
-</body>
-</html>
+            position: fixed;
+            top: 0; width: 100%;
+            height: 70px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, transparent);
+            display: flex;
+            align-items: center;
+            padding: 0 4
