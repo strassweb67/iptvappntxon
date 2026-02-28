@@ -2,265 +2,348 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJVidéo - Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TV_NTX | Premium Streaming Platform</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --neon-red: #ff0000;
-            --netflix-red: #E50914;
-            --bg-black: #080808;
-            --card-bg: #141414;
-            --nav-height: 70px;
-        }
-
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg-black);
-            color: white; margin: 0; overflow-x: hidden;
-        }
-
-        /* --- SÉLECTEUR DE PROFIL --- */
-        #profile-selector {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .profile-grid { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
-        .profile-card { text-align: center; cursor: pointer; width: 140px; transition: 0.3s; }
-        .profile-card:hover { transform: scale(1.1); }
-        .avatar { 
-            width: 120px; height: 120px; border-radius: 4px; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: center; font-size: 40px;
-            background: #333; border: 3px solid transparent;
-        }
-        .profile-card:hover .avatar { border-color: white; }
-
-        /* --- NAVIGATION NÉON --- */
-        nav {
-            position: fixed; top: 0; width: 100%; height: var(--nav-height);
-            display: flex; align-items: center; padding: 0 4%; box-sizing: border-box;
-            background: rgba(0,0,0,0.9); z-index: 2000; border-bottom: 1px solid rgba(255,0,0,0.2);
-        }
-        .logo { color: var(--neon-red); font-size: 28px; font-weight: bold; text-decoration: none; text-shadow: 0 0 10px var(--neon-red); margin-right: 40px; }
-        .nav-links { display: flex; gap: 15px; flex-grow: 1; }
+        :root { --ntx-red: #e50914; --bg: #000; --card: #181818; --glass: rgba(0,0,0,0.85); --text: #ffffff; }
         
-        /* Boutons Néon */
-        .btn-neon {
-            background: transparent; border: 2px solid var(--neon-red); color: white;
-            padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;
-            transition: 0.3s; text-transform: uppercase; font-size: 12px;
-        }
-        .btn-neon:hover { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; height: 100%; }
 
-        /* --- HERO & LECTEUR --- */
-        .hero { 
-            height: 60vh; width: 100%; position: relative;
-            background: linear-gradient(to bottom, transparent, var(--bg-black)), 
-                        url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover; background-position: center; filter: brightness(0.4) blur(2px);
+        /* --- PAGE D'ACCUEIL CINÉMATIQUE --- */
+        #welcome-screen {
+            position: fixed; inset: 0; z-index: 10000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; background: #000; overflow: hidden;
         }
-        .video-container {
-            max-width: 1000px; margin: -30vh auto 40px; position: relative; z-index: 100;
-            background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        #bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; pointer-events: none; }
+        .welcome-content { position: relative; z-index: 10; text-align: center; width: 90%; max-width: 450px; }
+        .logo-pulse { 
+            font-size: 60px; font-weight: 900; color: var(--ntx-red); letter-spacing: -4px;
+            animation: pulse 2s infinite alternate; margin-bottom: 30px; 
         }
-        video { width: 100%; aspect-ratio: 16/9; display: block; }
+        @keyframes pulse { from { transform: scale(1); opacity: 1; text-shadow: 0 0 10px rgba(229,9,20,0.5); } to { transform: scale(1.05); opacity: 0.8; text-shadow: 0 0 30px rgba(229,9,20,0.8); } }
+        
+        .pin-container { background: var(--glass); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); }
+        .pin-input { 
+            width: 100%; background: #111; border: 1px solid #333; color: #fff; 
+            padding: 15px; font-size: 24px; text-align: center; border-radius: 10px; 
+            margin-bottom: 15px; letter-spacing: 5px; font-weight: 700;
+        }
+        .price-tag { font-size: 12px; color: #888; margin-bottom: 20px; }
+        .by-brice { font-size: 14px; font-weight: 600; color: var(--ntx-red); margin-top: 20px; }
 
-        /* --- GRILLE STYLE MOLOTOV --- */
-        .row { padding: 0 4% 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-        .item-card {
-            background: #111; border-radius: 6px; overflow: hidden; cursor: pointer;
-            transition: 0.3s; border: 1px solid #222;
+        /* --- INTERFACE PRINCIPALE --- */
+        #main-interface { display: none; padding-top: 70px; }
+        header { 
+            position: fixed; top: 0; width: 100%; height: 70px; background: linear-gradient(to bottom, #000, transparent);
+            display: flex; align-items: center; padding: 0 4%; z-index: 9000; backdrop-filter: blur(10px);
         }
-        .item-card:hover { border-color: var(--neon-red); transform: translateY(-5px); }
-        .img-container { 
-            width: 100%; height: 110px; background: #000; 
-            display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;
+        .nav-btn { color: #aaa; margin-left: 20px; cursor: pointer; font-weight: 700; font-size: 14px; text-transform: uppercase; }
+        .nav-btn:hover, .nav-btn.active { color: #fff; }
+        .nav-admin { color: var(--ntx-red) !important; border: 1px solid var(--ntx-red); padding: 5px 15px; border-radius: 5px; }
+
+        /* --- PLAYER --- */
+        .player-container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 4%; }
+        .player-wrapper { 
+            position: relative; width: 100%; aspect-ratio: 16/9; background: #000; 
+            border-radius: 15px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);
         }
-        .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .item-title { padding: 10px; font-size: 13px; text-align: center; font-weight: bold; background: #181818; }
+        video { width: 100%; height: 100%; }
+        .quality-btn { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); border: 1px solid #444; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; }
 
-        /* --- PANNEAUX (ADMIN & COMPTE) --- */
-        .panel { display: none; padding: 100px 4% 40px; max-width: 800px; margin: 0 auto; }
-        .box { background: #141414; padding: 30px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
-        .save-btn { background: var(--neon-red); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; margin-top: 10px; }
+        /* --- CATEGORIES & RAILS --- */
+        .rail { margin: 30px 0; padding: 0 4%; }
+        .rail-title { font-size: 22px; font-weight: 800; margin-bottom: 15px; text-transform: capitalize; }
+        .rail-items { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 15px; }
+        .rail-items::-webkit-scrollbar { display: none; }
+        .card { 
+            min-width: 240px; aspect-ratio: 16/9; background: var(--card); border-radius: 8px; 
+            cursor: pointer; transition: transform 0.3s; border: 1px solid #222; overflow: hidden; position: relative;
+        }
+        .card:hover { transform: scale(1.05); border-color: var(--ntx-red); z-index: 5; }
+        .card img { width: 100%; height: 100%; object-fit: contain; padding: 15px; }
+        .card-label { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, #000); padding: 10px; font-size: 12px; font-weight: 700; }
 
+        /* --- ADMIN PANEL --- */
+        #admin-panel { display: none; padding: 40px 4%; max-width: 1000px; margin: 0 auto; }
+        .box { background: #111; padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
+        .ntx-input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+        .ntx-btn { width: 100%; background: var(--ntx-red); color: #fff; border: none; padding: 15px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+        .adm-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #222; font-size: 14px; }
+        .move-btns button { background: #333; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+
+        footer { text-align: center; padding: 40px; color: #444; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div id="profile-selector">
-    <h1 style="margin-bottom: 50px;">Qui regarde BJVidéo ?</h1>
-    <div id="profile-list" class="profile-grid"></div>
-</div>
-
-<nav>
-    <a href="#" onclick="location.reload()" class="logo">BJVidéo</a>
-    <div class="nav-links">
-        <button class="btn-neon" onclick="showPage('home')">Accueil</button>
-        <button class="btn-neon" onclick="showPage('account')">Mon Compte</button>
-        <button id="admin-btn" class="btn-neon" style="display:none;" onclick="showPage('admin')">Configuration Site</button>
-    </div>
-</nav>
-
-<div id="page-home" class="content-page" style="display:block;">
-    <div class="hero"></div>
-    <div class="video-container">
-        <video id="main-player" controls autoplay></video>
-        <h3 id="now-playing" style="text-align: center; color: var(--neon-red); padding: 10px;">Sélectionnez un contenu</h3>
-    </div>
-
-    <div class="row"><h2>📺 Chaînes TV</h2><div id="grid-tv" class="grid"></div></div>
-    <div class="row"><h2>🎬 Films & Séries</h2><div id="grid-movie" class="grid"></div></div>
-    <div class="row"><h2>📻 Radios</h2><div id="grid-radio" class="grid"></div></div>
-</div>
-
-<div id="page-account" class="panel">
-    <div class="box">
-        <h2>Paramètres de mon compte</h2>
-        <p>Utilisateur : <strong id="display-user"></strong></p>
-        <input type="password" id="new-mdp" placeholder="Nouveau mot de passe">
-        <button class="save-btn" onclick="updatePassword()">SAUVEGARDER MON MOT DE PASSE</button>
+<div id="welcome-screen">
+    <video id="bg-video" autoplay muted loop playsinline>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-action-movie-trailer-with-intense-scenes-34651-large.mp4" type="video/mp4">
+    </video>
+    
+    <div class="welcome-content">
+        <div class="logo-pulse" id="main-logo">TV_NTX</div>
+        <div class="pin-container">
+            <h2 style="margin-top:0; font-size: 18px;">ENTRER VOTRE CODE D'ACCÈS</h2>
+            <input type="password" id="pin-entry" class="pin-input" maxlength="8" placeholder="****">
+            <button class="ntx-btn" onclick="checkPin()">VALIDER L'ACCÈS</button>
+            <div class="price-tag">
+                OFFRE PREMIUM : 9.99€/mois - UHD & 4K Inclus<br>
+                <span class="by-brice">@By brice jct.</span>
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="page-admin" class="panel">
-    <div class="box">
-        <h2 style="color:var(--neon-red)">Configuration du Site (Admin Uniquement)</h2>
-        <input type="text" id="add-name" placeholder="Nom">
-        <input type="text" id="add-url" placeholder="Lien du flux (m3u8, mp4...)">
-        <input type="text" id="add-logo" placeholder="URL du logo (PNG/JPG)">
-        <select id="add-type">
-            <option value="tv">Chaîne TV</option>
-            <option value="movie">Film / Série</option>
-            <option value="radio">Radio</option>
-        </select>
-        <button class="save-btn" onclick="addContent()">AJOUTER AU CATALOGUE</button>
+<div id="main-interface">
+    <header>
+        <div class="logo-pulse" style="font-size: 24px; margin: 0;">TV_NTX</div>
+        <div class="nav-btn active" onclick="showUI('home')">Accueil</div>
+        <div class="nav-btn" onclick="showUI('tv')">TV Direct</div>
+        <div class="nav-btn" onclick="showUI('vod')">Films & Séries</div>
+        <div class="nav-btn" onclick="showUI('radio')">Musique & Radio</div>
+        <div class="nav-btn nav-admin" id="admin-link" style="display:none;" onclick="showUI('admin')">PANEL ADMIN</div>
+        <div class="nav-btn" style="margin-left: auto;" onclick="location.reload()">Quitter</div>
+    </header>
+
+    <div class="player-container">
+        <div class="player-wrapper">
+            <video id="video-player" controls playsinline></video>
+            <select class="quality-btn" id="quality-selector" onchange="changeQuality()">
+                <option value="auto">Auto (4K Ready)</option>
+                <option value="2160">4K UHD</option>
+                <option value="1080">1080p FHD</option>
+                <option value="720">720p HD</option>
+            </select>
+        </div>
+        <h1 id="current-title" style="margin: 20px 0 5px; font-weight: 900;">TF1 HD</h1>
+        <p id="current-tags" style="color: var(--ntx-red); font-weight: 700; margin: 0; font-size: 14px;">#DIRECT #TNT</p>
     </div>
-    <div class="box" id="admin-manage-list"></div>
+
+    <div id="dynamic-rails"></div>
+
+    <div id="admin-panel">
+        <div class="box">
+            <h3>AJOUTER DU CONTENU (TV / FILM / RADIO)</h3>
+            <select id="add-type" class="ntx-input">
+                <option value="tv">TV Direct (M3U8)</option>
+                <option value="vod">Film / Série (MP4)</option>
+                <option value="radio">Radio / Musique</option>
+            </select>
+            <input type="text" id="add-name" class="ntx-input" placeholder="Nom du contenu">
+            <input type="text" id="add-url" class="ntx-input" placeholder="URL du flux (.m3u8 ou .mp4)">
+            <input type="text" id="add-logo" class="ntx-input" placeholder="URL de l'image (Lien direct)">
+            <input type="text" id="add-tags" class="ntx-input" placeholder="Tags (ex: Action, Sport, National) - Séparés par virgule">
+            <button class="ntx-btn" onclick="saveContent()">ENREGISTRER SUR LE SERVEUR</button>
+        </div>
+
+        <div class="box">
+            <h3>GESTION DES ACCÈS CODES</h3>
+            <input type="text" id="new-client-code" class="ntx-input" placeholder="Nouveau Code Client">
+            <input type="date" id="new-client-exp" class="ntx-input">
+            <button class="ntx-btn" style="background: #333;" onclick="addClient()">CRÉER ACCÈS CLIENT</button>
+            <div id="client-list" style="margin-top:15px;"></div>
+        </div>
+
+        <div class="box">
+            <h3>ORGANISATION DU CATALOGUE</h3>
+            <div id="catalog-list"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>@By brice jct. - Tous droits réservés.</p>
+        <p>Plateforme de diffusion sécurisée TV_NTX v4.0 Evolution</p>
+    </footer>
 </div>
 
 <script>
-    // 1. Initialisation des comptes et de la base
-    const defaultAccounts = [
-        { name: 'Admin', mdp: 'Treza670', role: 'admin', color: '#ff0000' },
-        { name: 'Smart100', mdp: 'Smart100', role: 'user', color: '#2b90d9' },
-        { name: 'Herce', mdp: 'Schiltigheim67*', role: 'user', color: '#e50914' },
-        { name: 'Marie Christine', mdp: 'Schiltigheim67*', role: 'user', color: '#b926d5' },
-        { name: 'Gauthier', mdp: 'gauthierrauch67', role: 'user', color: '#2ecc71' }
+    // --- BASE DE DONNÉES INITIALE ---
+    const hls = new Hls();
+    let contentDB = JSON.parse(localStorage.getItem('ntx_content')) || [
+        { 
+            name: "TF1 HD", 
+            url: "https://viamotionhsi.netplus.ch/live/eds/tf1hd/browser-HLS8/tf1hd.m3u8", 
+            logo: "https://raw.githubusercontent.com/tv-logo/tv-logos/main/countries/france/tf1-fr.png", 
+            tags: "TNT, National", 
+            type: "tv" 
+        }
     ];
 
-    let accounts = JSON.parse(localStorage.getItem('bjvideo_accounts')) || defaultAccounts;
-    let library = JSON.parse(localStorage.getItem('bjvideo_library')) || [];
-    let currentUser = null;
-    
-    const player = document.getElementById('main-player');
-    const hls = new Hls();
+    let clientsDB = JSON.parse(localStorage.getItem('ntx_clients')) || [
+        { pin: "Treza670", role: "admin", exp: null },
+        { pin: "1234", role: "user", exp: "2026-12-31" }
+    ];
 
-    // 2. Gestion des profils
-    function initProfiles() {
-        const list = document.getElementById('profile-list');
-        list.innerHTML = '';
-        accounts.forEach((acc, idx) => {
-            list.innerHTML += `
-                <div class="profile-card" onclick="login(${idx})">
-                    <div class="avatar" style="background:${acc.color}">${acc.name[0]}</div>
-                    <p>${acc.name}</p>
-                </div>`;
-        });
-    }
+    // --- LOGIQUE D'ACCÈS ---
+    function checkPin() {
+        const pin = document.getElementById('pin-entry').value;
+        const user = clientsDB.find(u => u.pin === pin);
 
-    function login(idx) {
-        const pass = prompt(`Mot de passe pour ${accounts[idx].name} :`);
-        if (pass === accounts[idx].mdp) {
-            currentUser = accounts[idx];
-            document.getElementById('profile-selector').style.display = 'none';
-            document.getElementById('display-user').innerText = currentUser.name;
-            if (currentUser.role === 'admin') document.getElementById('admin-btn').style.display = 'block';
-            render();
+        if (user) {
+            if (user.exp && new Date(user.exp) < new Date()) {
+                alert("Votre accès a expiré. Contactez Brice @By brice jct.");
+                return;
+            }
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('main-interface').style.display = 'block';
+            if (user.role === 'admin') document.getElementById('admin-link').style.display = 'block';
+            renderUI();
         } else {
-            alert("Mot de passe incorrect !");
+            alert("Code incorrect.");
         }
     }
 
-    // 3. Navigation
-    function showPage(id) {
-        document.querySelectorAll('.content-page, .panel').forEach(p => p.style.display = 'none');
-        document.getElementById('page-' + id).style.display = 'block';
-        window.scrollTo(0,0);
-    }
+    // --- MOTEUR DE TAGS & RENDU ---
+    function renderUI(filterType = 'home') {
+        const mount = document.getElementById('dynamic-rails');
+        mount.innerHTML = '';
+        
+        // Extraction de tous les tags uniques
+        let allTags = [];
+        contentDB.forEach(item => {
+            if(filterType !== 'home' && item.type !== filterType) return;
+            let tags = item.tags.split(',').map(t => t.trim());
+            allTags = [...new Set([...allTags, ...tags])];
+        });
 
-    // 4. Gestion MDP
-    function updatePassword() {
-        const newPass = document.getElementById('new-mdp').value;
-        if(newPass) {
-            currentUser.mdp = newPass;
-            localStorage.setItem('bjvideo_accounts', JSON.stringify(accounts));
-            alert("Mot de passe mis à jour et sauvegardé !");
-            document.getElementById('new-mdp').value = '';
-        }
-    }
+        // Création d'un rail par Tag
+        allTags.forEach(tag => {
+            const itemsInTag = contentDB.filter(item => {
+                if(filterType !== 'home' && item.type !== filterType) return false;
+                return item.tags.includes(tag);
+            });
 
-    // 5. Gestion Catalogue
-    function addContent() {
-        const name = document.getElementById('add-name').value;
-        const url = document.getElementById('add-url').value;
-        const logo = document.getElementById('add-logo').value;
-        const type = document.getElementById('add-type').value;
+            if (itemsInTag.length > 0) {
+                let railHtml = `
+                    <div class="rail">
+                        <div class="rail-title">${tag}</div>
+                        <div class="rail-items">
+                `;
 
-        if(name && url) {
-            library.push({ name, url, logo, type });
-            localStorage.setItem('bjvideo_library', JSON.stringify(library));
-            render();
-            alert("Ajouté et sauvegardé !");
-        }
-    }
+                itemsInTag.forEach(item => {
+                    railHtml += `
+                        <div class="card" onclick="loadVideo('${item.url}', '${item.name}', '${item.tags}')">
+                            <img src="${item.logo}" onerror="this.src='https://via.placeholder.com/300x168/111/fff?text=${item.name}'">
+                            <div class="card-label">${item.name}</div>
+                        </div>
+                    `;
+                });
 
-    function deleteItem(idx) {
-        if(confirm("Supprimer ?")) {
-            library.splice(idx, 1);
-            localStorage.setItem('bjvideo_library', JSON.stringify(library));
-            render();
-        }
-    }
-
-    function play(url, name) {
-        document.getElementById('now-playing').innerText = "Lecture : " + name;
-        if (url.includes('.m3u8')) {
-            if (Hls.isSupported()) { hls.loadSource(url); hls.attachMedia(player); }
-        } else { player.src = url; }
-        player.play();
-        window.scrollTo({top: 200, behavior: 'smooth'});
-    }
-
-    // 6. Rendu
-    function render() {
-        const grids = { tv: document.getElementById('grid-tv'), movie: document.getElementById('grid-movie'), radio: document.getElementById('grid-radio') };
-        const adminList = document.getElementById('admin-manage-list');
-        Object.values(grids).forEach(g => g.innerHTML = '');
-        adminList.innerHTML = '<h3>Liste actuelle :</h3>';
-
-        library.forEach((item, idx) => {
-            const card = document.createElement('div');
-            card.className = 'item-card';
-            card.innerHTML = `
-                <div class="img-container"><img src="${item.logo || 'https://via.placeholder.com/150'}"></div>
-                <div class="item-title">${item.name}</div>
-            `;
-            card.onclick = () => play(item.url, item.name);
-            if(grids[item.type]) grids[item.type].appendChild(card);
-
-            if(currentUser.role === 'admin') {
-                adminList.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
-                    <span>${item.name}</span> <button onclick="deleteItem(${idx})" style="color:red; background:none; border:none; cursor:pointer">X</button>
-                </div>`;
+                railHtml += `</div></div>`;
+                mount.innerHTML += railHtml;
             }
         });
+        renderCatalogAdmin();
+        renderClientsAdmin();
     }
 
-    initProfiles();
+    // --- LECTEUR & QUALITÉ ---
+    function loadVideo(url, name, tags) {
+        document.getElementById('current-title').innerText = name;
+        document.getElementById('current-tags').innerText = tags.split(',').map(t => '#' + t.trim().toUpperCase()).join(' ');
+        
+        const video = document.getElementById('video-player');
+        if (url.endsWith('.m3u8')) {
+            if (Hls.isSupported()) {
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            }
+        } else {
+            video.src = url;
+            video.play();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changeQuality() {
+        const q = document.getElementById('quality-selector').value;
+        alert("Qualité ajustée sur : " + (q === 'auto' ? 'Adaptative 4K' : q + 'p'));
+        // Sur HLS.js, on pourrait forcer le level, ici on simule l'UI demandée
+    }
+
+    // --- ACTIONS ADMIN ---
+    function saveContent() {
+        const newItem = {
+            type: document.getElementById('add-type').value,
+            name: document.getElementById('add-name').value,
+            url: document.getElementById('add-url').value,
+            logo: document.getElementById('add-logo').value,
+            tags: document.getElementById('add-tags').value
+        };
+        if(newItem.name && newItem.url) {
+            contentDB.push(newItem);
+            localStorage.setItem('ntx_content', JSON.stringify(contentDB));
+            renderUI();
+            alert("Contenu ajouté !");
+        }
+    }
+
+    function renderCatalogAdmin() {
+        const list = document.getElementById('catalog-list');
+        list.innerHTML = '<h4>Gestion du Catalogue</h4>';
+        contentDB.forEach((item, i) => {
+            list.innerHTML += `
+                <div class="adm-list-item">
+                    <span><b>[${item.type.toUpperCase()}]</b> ${item.name}</span>
+                    <div class="move-btns">
+                        <button onclick="moveItem(${i}, -1)">↑</button>
+                        <button onclick="moveItem(${i}, 1)">↓</button>
+                        <button style="background:red" onclick="deleteItem(${i})">X</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function moveItem(idx, dir) {
+        let t = idx + dir;
+        if(t >= 0 && t < contentDB.length) {
+            [contentDB[idx], contentDB[t]] = [contentDB[t], contentDB[idx]];
+            localStorage.setItem('ntx_content', JSON.stringify(contentDB));
+            renderUI();
+        }
+    }
+
+    function deleteItem(i) {
+        contentDB.splice(i, 1);
+        localStorage.setItem('ntx_content', JSON.stringify(contentDB));
+        renderUI();
+    }
+
+    function addClient() {
+        const pin = document.getElementById('new-client-code').value;
+        const exp = document.getElementById('new-client-exp').value;
+        if(pin) {
+            clientsDB.push({ pin, role: 'user', exp });
+            localStorage.setItem('ntx_clients', JSON.stringify(clientsDB));
+            renderClientsAdmin();
+        }
+    }
+
+    function renderClientsAdmin() {
+        const list = document.getElementById('client-list');
+        list.innerHTML = '<h4>Codes Clients Actifs</h4>';
+        clientsDB.forEach((c, i) => {
+            if(c.role === 'admin') return;
+            list.innerHTML += `<div class="adm-list-item">
+                <span>Code: <b>${c.pin}</b> | Exp: ${c.exp || 'Illimité'}</span>
+                <button style="background:red; color:white; border:none; padding:5px;" onclick="clientsDB.splice(${i},1); localStorage.setItem('ntx_clients', JSON.stringify(clientsDB)); renderClientsAdmin();">Supprimer</button>
+            </div>`;
+        });
+    }
+
+    function showUI(type) {
+        document.getElementById('admin-panel').style.display = (type === 'admin' ? 'block' : 'none');
+        if(type !== 'admin') {
+            document.getElementById('main-interface').style.display = 'block';
+            renderUI(type);
+        }
+    }
 </script>
 </body>
 </html>
