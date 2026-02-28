@@ -3,72 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RED STREAM - Netflix Style</title>
+    <title>BJVidéo - Master Control</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --netflix-red: #E50914;
-            --bg-black: #141414;
-            --nav-black: rgba(0, 0, 0, 0.7);
-            --card-hover: #2f2f2f;
+            --neon-red: #ff0000;
+            --bg-dark: #0a0a0a;
+            --nav-blur: rgba(10, 10, 10, 0.9);
+            --transition: all 0.3s ease;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-black);
-            color: white;
-            margin: 0;
-            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: white; margin: 0; overflow-x: hidden;
         }
 
-        /* --- SÉLECTEUR DE PROFILS --- */
-        #profile-selector {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-black);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .profile-list {
-            display: flex;
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .profile-item {
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .profile-avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 4px;
-            background: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 50px;
-            margin-bottom: 10px;
-            border: 3px solid transparent;
-        }
-
-        .profile-item:hover .profile-avatar { border-color: white; }
-        .profile-item:hover p { color: white; }
-        .profile-item p { color: #808080; font-size: 1.2rem; margin: 0; }
-
-        /* --- BARRE DE NAVIGATION STYLE NETFLIX --- */
+        /* --- NAVIGATION --- */
         nav {
-            position: fixed;
-            top: 0; width: 100%;
-            height: 70px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, transparent);
-            display: flex;
-            align-items: center;
-            padding: 0 4
+            position: fixed; top: 0; width: 100%; height: 70px;
+            display: flex; align-items: center; padding: 0 5%; box-sizing: border-box;
+            z-index: 2000; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+        nav.scrolled { background: var(--nav-blur); backdrop-filter: blur(20px); border-bottom: 1px solid #222; }
+        .logo { color: var(--neon-red); font-size: 26px; font-weight: 800; text-decoration: none; text-shadow: 0 0 10px var(--neon-red); }
+        .nav-menu { display: flex; gap: 10px; margin-left: 40px; }
+        .nav-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #eee; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 13px;
+        }
+        .nav-btn:hover { background: var(--neon-red); color: white; border-color: var(--neon-red); }
+
+        /* --- LECTEUR --- */
+        .main-stage { height: 90vh; display: flex; justify-content: center; align-items: center; background: #000; }
+        .player-container { 
+            position: relative; width: 80%; aspect-ratio: 16/9; border-radius: 25px; 
+            overflow: hidden; border: 1px solid #333; background: #000; 
+        }
+        #loader { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: #000; z-index: 5; }
+        #loader h2 { color: var(--neon-red); font-size: 3rem; text-shadow: 0 0 20px var(--neon-red); }
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* --- GRILLE --- */
+        .content-section { padding: 40px 5%; margin-top: -50px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .card { 
+            background: #151515; border-radius: 15px; overflow: hidden; border: 1px solid #222; 
+            cursor: pointer; transition: var(--transition); 
+        }
+        .card:hover { transform: scale(1.05); border-color: var(--neon-red); }
+        .card-img { height: 100px; display: flex; align-items: center; justify-content: center; padding: 15px; background: #000; }
+        .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .card-body { padding: 10px; text-align: center; font-size: 13px; font-weight: 600; }
+
+        /* --- SÉLECTEUR DE PROFIL --- */
+        #profile-selector {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .profile-avatar {
+            width: 130px; height: 130px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 40px; border: 4px solid transparent;
+        }
+        .profile-item:hover .profile-avatar { border-color: var(--neon-red); transform: scale(1.1); }
+
+        /* --- PANNEAUX DE GESTION --- */
+        .panel { display: none; padding: 100px 5%; max-width: 900px; margin: 0 auto; }
+        .glass-box { background: #111; padding: 35px; border-radius: 25px; border: 1px solid #222; margin-bottom: 30px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: white; border-radius: 10px; }
+        .btn-save { background: var(--neon-red); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+
+        .admin-user-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background: #1a1a1a; margin-bottom: 10px; border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="profile-selector">
+    <h1 style="margin-bottom: 40px;">BJVidéo</h1>
+    <div id="profile-list" style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;"></div>
+</div>
+
+<nav id="navbar">
+    <a href="#" class="logo">BJVidéo</a>
+    <div class="nav-menu">
+        <button class="nav-btn" onclick="showPage('home')">Accueil</button>
+        <button class="nav-btn" onclick="showPage('account')">Mon Profil</button>
+        <button id="admin-link" class="nav-btn" style="display:none;" onclick="showPage('admin')">Paramètres Master</button>
+    </div>
+</nav>
+
+<div id="page-home">
+    <div class="main-stage">
+        <div class="player-container">
+            <div id="loader"><h2>BJVidéo</h2></div>
+            <video id="video-player" controls></video>
+        </div>
+    </div>
+    <div class="content-section">
+        <h2 style="border-left: 4px solid var(--neon-red); padding-left: 15px;">Catalogue Multimédia</h2>
+        <div id="main-grid" class="grid"></div>
+    </div>
+</div>
+
+<div id="page-account" class="panel">
+    <div class="glass-box">
+        <h2>Paramètres de Profil</h2>
+        <p>Profil : <strong id="user-display" style="color:var(--neon-red)"></strong></p>
+        <label>Changer mon mot de passe :</label>
+        <input type="password" id="user-new-pass" placeholder="Nouveau mot de passe">
+        <button class="btn-save" onclick="selfUpdatePass()">METTRE À JOUR</button>
+    </div>
+</div>
+
+<div id="page-admin" class="panel">
+    <div class="glass-box">
+        <h2 style="color:var(--neon-red)">Contrôle des Utilisateurs</h2>
+        <div id="master-user-list"></div>
+    </div>
+
+    <div class="glass-box">
+        <h2>Ajouter du contenu</h2>
+        <input type="text" id="in-name" placeholder="Nom">
+        <input type="text" id="in-url" placeholder="URL du flux">
+        <input type="text" id="in-logo" placeholder="URL du logo">
+        <select id="in-type">
+            <option value="tv">TV</option>
+            <option value="movie">Film</option>
+        </select>
+        <button class="btn-save" onclick="addMedia()">AJOUTER AU SITE</button>
+    </div>
+</div>
+
+<script>
+    const defaultAccounts = [
+        { name: 'Admin', mdp: 'Treza670', role: 'admin', color: '#ff0000' },
+        { name: 'Smart100', mdp: 'Smart100', role: 'user', color: '#2b90d9' },
+        { name: 'Herce', mdp: 'Schiltigheim67*', role: 'user', color: '#e50914' },
+        { name: 'Marie Christine', mdp: 'Schiltigheim67*', role: 'user', color: '#b926d5' },
+        { name: 'Gauthier', mdp: 'gauthierrauch67', role: 'user', color: '#2ecc71' }
+    ];
+
+    let db_accs = JSON.parse(localStorage.getItem('bj_accounts')) || defaultAccounts;
+    let db_lib = JSON.parse(localStorage.getItem('bj_library')) || [];
+    let currentUser = null;
+    const player = document.getElementById('video-player');
+    const hls = new Hls();
+
+    function init() {
+        const list = document.getElementById('profile-list');
+        list.innerHTML = '';
+        db_accs.forEach((acc, i) => {
+            list.innerHTML += `
+                <div class="profile-item" onclick="login(${i})">
+                    <div class="profile-avatar" style="background:${acc.color}">${acc.name[0]}</div>
+                    <p>${acc.name}</p>
+                </div>`;
+        });
+    }
+
+    function login(i) {
+        let p = prompt(`Mot de passe pour ${db_accs[i].name} :`);
+        if(p === db_accs[i].mdp) {
+            currentUser = db_accs[i];
+            document.getElementById('profile-selector').style.display = 'none';
+            document.getElementById('user-display').innerText = currentUser.name;
+            if(currentUser.role === 'admin') {
+                document.getElementById('admin-link').style.display = 'block';
+                renderMasterUsers();
+            }
+            render();
+        } else alert("Accès refusé");
+    }
+
+    // Chaque utilisateur change son propre MDP
+    function selfUpdatePass() {
+        let newP = document.getElementById('user-new-pass').value;
+        if(newP) {
+            currentUser.mdp = newP;
+            saveAll();
+            alert("Mot de passe modifié avec succès !");
+            document.getElementById('user-new-pass').value = '';
+        }
+    }
+
+    // ADMIN modifie n'importe quel MDP
+    function renderMasterUsers() {
+        const list = document.getElementById('master-user-list');
+        list.innerHTML = '';
+        db_accs.forEach((acc, i) => {
+            list.innerHTML += `
+                <div class="admin-user-row">
+                    <span><strong>${acc.name}</strong> (Actuel: ${acc.mdp})</span>
+                    <button class="nav-btn" onclick="masterChangePass(${i})">Changer</button>
+                </div>`;
+        });
+    }
+
+    function masterChangePass(i) {
+        let newP = prompt(`Nouveau mot de passe pour ${db_accs[i].name} :`, db_accs[i].mdp);
+        if(newP) {
+            db_accs[i].mdp = newP;
+            saveAll();
+            renderMasterUsers();
+        }
+    }
+
+    function saveAll() {
+        localStorage.setItem('bj_accounts', JSON.stringify(db_accs));
+        localStorage.setItem('bj_library', JSON.stringify(db_lib));
+    }
+
+    function showPage(id) {
+        document.querySelectorAll('.panel, #page-home').forEach(p => p.style.display = 'none');
+        document.getElementById('page-' + id).style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function addMedia() {
+        let n = document.getElementById('in-name').value;
+        let u = document.getElementById('in-url').value;
+        let l = document.getElementById('in-logo').value;
+        let t = document.getElementById('in-type').value;
+        if(n && u) {
+            db_lib.push({name:n, url:u, logo:l, type:t});
+            saveAll();
+            render();
+            alert("Contenu ajouté !");
+        }
+    }
+
+    function play(u) {
+        document.getElementById('loader').style.display = 'none';
+        if(u.includes('.m3u8')) {
+            if(Hls.isSupported()) { hls.loadSource(u); hls.attachMedia(player); }
+        } else player.src = u;
+        player.play();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function render() {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '';
+        db_lib.forEach((item) => {
+            let card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<div class="card-img"><img src="${item.logo}"></div><div class="card-body">${item.name}</div>`;
+            card.onclick = () => play(item.url);
+            grid.appendChild(card);
+        });
+    }
+
+    init();
+    window.onscroll = () => {
+        if (window.scrollY > 30) document.getElementById('navbar').classList.add('scrolled');
+        else document.getElementById('navbar').classList.remove('scrolled');
+    };
+</script>
+</body>
+</html>
