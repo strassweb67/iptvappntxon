@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJVidéo - Streaming Premium</title>
+    <title>BJVidéo - Master Quality</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -27,23 +27,40 @@
             z-index: 2000; background: #000; border-bottom: 1px solid #1a1a1a;
         }
         .logo { color: var(--neon-red); font-size: 24px; font-weight: 800; text-decoration: none; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
-        .nav-menu { display: flex; gap: 15px; margin-left: auto; }
+        .nav-menu { display: flex; gap: 15px; margin-left: auto; align-items: center; }
+        
         .nav-btn {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
             color: #eee; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; transition: var(--transition);
         }
         .nav-btn:hover { background: var(--neon-red); border-color: var(--neon-red); }
 
+        /* BOUTON QUALITÉ SPÉCIAL */
+        .quality-select {
+            background: var(--neon-red); border: none; color: white;
+            padding: 6px 15px; border-radius: 20px; cursor: pointer;
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(255,0,0,0.4);
+        }
+
         /* --- LECTEUR CADRÉ --- */
         .player-section {
-            margin-top: var(--nav-height); /* Colle au bas de la nav */
+            margin-top: var(--nav-height);
             width: 100%; height: 65vh; background: #000;
             position: relative; display: flex; justify-content: center; align-items: center;
             border-bottom: 2px solid #1a1a1a;
         }
         #video-player { width: 100%; height: 100%; object-fit: contain; display: none; }
 
-        /* SPLASH & SPINNER */
+        /* BADGE DE QUALITÉ SUR LE LECTEUR */
+        #quality-badge {
+            position: absolute; bottom: 20px; right: 20px;
+            background: rgba(0,0,0,0.6); color: var(--neon-red);
+            padding: 4px 10px; border-radius: 5px; font-weight: 800;
+            font-size: 14px; border: 1px solid var(--neon-red);
+            display: none; z-index: 100; pointer-events: none;
+        }
+
         #player-ui { text-align: center; z-index: 10; }
         #player-ui h2 { color: var(--neon-red); font-size: 3.5rem; margin: 0; letter-spacing: 2px; }
         .spinner {
@@ -104,6 +121,14 @@
 <nav>
     <a href="#" class="logo">BJVidéo</a>
     <div class="nav-menu">
+        <select id="quality-selector" class="quality-select" onchange="changeQuality(this.value)">
+            <option value="Auto">Qualité : Auto</option>
+            <option value="2160">2160p (4K)</option>
+            <option value="1080">1080p (HD)</option>
+            <option value="720">720p (HD)</option>
+            <option value="480">480p (SD)</option>
+        </select>
+
         <button class="nav-btn" onclick="showPage('home')">Accueil</button>
         <button class="nav-btn" onclick="showPage('account')">Mon Profil</button>
         <button id="admin-link" class="nav-btn" style="display:none;" onclick="showPage('admin')">Configuration Master</button>
@@ -118,6 +143,7 @@
             <p style="color:#555; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">En attente de flux</p>
         </div>
         <video id="video-player" controls></video>
+        <div id="quality-badge">1080p</div>
     </div>
 
     <div class="category-bar">
@@ -144,7 +170,7 @@
 
 <div id="page-admin" class="panel">
     <div class="box">
-        <h2 style="color:var(--neon-red)">Gestion des Mots de Passe</h2>
+        <h2 style="color:var(--neon-red)">Gestion Master</h2>
         <div id="master-users"></div>
     </div>
     <div class="box">
@@ -175,6 +201,7 @@
     let db_lib = JSON.parse(localStorage.getItem('bj_library')) || [];
     let user = null;
     const player = document.getElementById('video-player');
+    const badge = document.getElementById('quality-badge');
     const hls = new Hls();
 
     function init() {
@@ -198,6 +225,28 @@
         } else alert("Faux");
     }
 
+    // GESTION DE LA QUALITÉ
+    function changeQuality(val) {
+        const selector = document.getElementById('quality-selector');
+        
+        if (val === "Auto") {
+            badge.style.display = "none";
+            selector.innerHTML = "Qualité : Auto";
+            if (hls) hls.currentLevel = -1; // Mode auto HLS
+        } else {
+            badge.style.display = "block";
+            badge.innerText = val + (val === "2160" ? " 4K" : "p");
+            selector.innerHTML = val + (val === "2160" ? " 4K" : "p HD");
+            
+            // Si c'est du HLS, on force le niveau correspondant
+            if (hls && hls.levels) {
+                hls.levels.forEach((level, index) => {
+                    if (level.height == val) hls.currentLevel = index;
+                });
+            }
+        }
+    }
+
     function filterContent(type, btn) {
         if(btn) {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -205,7 +254,6 @@
         }
         const grid = document.getElementById('main-grid');
         grid.innerHTML = '';
-        
         db_lib.forEach((item, i) => {
             if(type === 'all' || item.type === type) {
                 let card = document.createElement('div');
@@ -220,10 +268,23 @@
     function playStream(url) {
         document.getElementById('player-ui').style.display = 'none';
         player.style.display = 'block';
+        
+        // Reset badge qualite au lancement
+        document.getElementById('quality-selector').value = "Auto";
+        badge.style.display = "none";
+
         if(url.includes('.m3u8')) {
-            if(Hls.isSupported()) { hls.loadSource(url); hls.attachMedia(player); }
-        } else player.src = url;
-        player.play();
+            if(Hls.isSupported()) { 
+                hls.loadSource(url); 
+                hls.attachMedia(player); 
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    player.play();
+                });
+            }
+        } else {
+            player.src = url;
+            player.play();
+        }
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
