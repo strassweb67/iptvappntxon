@@ -3,61 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV_NTX | MASTER CONTROL</title>
+    <title>TV_NTX | PANNEAU DE CONTRÔLE MASTER</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --ntx-red: #e50914; --bg: #000; --card-bg: #111; --border: rgba(255,255,255,0.1); }
-        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        :root { --ntx-red: #e50914; --bg: #000; --card: #141414; --border: rgba(255,255,255,0.1); }
         
-        /* FOND */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100%; }
+
+        /* FOND ANIMÉ */
         .bg-animated { position: fixed; inset: 0; z-index: -1; background: #000; overflow: hidden; }
-        .film-strip { position: absolute; width: 180px; height: 300%; background: linear-gradient(to bottom, transparent, rgba(229, 9, 20, 0.05), transparent); transform: rotate(20deg); top: -100%; animation: moveStrip 25s linear infinite; opacity: 0.1; }
-        @keyframes moveStrip { from { transform: rotate(20deg) translateY(0); } to { transform: rotate(20deg) translateY(33.3%); } }
+        .film-strip { position: absolute; width: 10%; height: 300%; background: linear-gradient(to bottom, transparent, rgba(229, 9, 20, 0.03), transparent); transform: rotate(20deg); top: -100%; animation: moveStrip 25s linear infinite; }
+        @keyframes moveStrip { from { transform: translateY(0); } to { transform: translateY(33.3%); } }
 
         /* LOADER 0.9s */
-        #master-loader { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(15px); }
+        #master-loader { position: fixed; inset: 0; background: #000; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         .ring { width: 50px; height: 50px; border: 3px solid rgba(229,9,20,0.1); border-top: 3px solid var(--ntx-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* LOGIN */
-        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .login-card { width: 90%; max-width: 400px; padding: 40px; background: rgba(10,10,10,0.95); border: 1px solid var(--border); border-radius: 12px; text-align: center; }
-        .logo { font-weight: 900; font-size: 40px; color: var(--ntx-red); letter-spacing: -2px; margin-bottom: 30px; }
-        .ntx-input { width: 100%; padding: 15px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px; margin-bottom: 10px; box-sizing: border-box; }
-        .ntx-btn { width: 100%; padding: 15px; background: var(--ntx-red); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; }
-
-        /* NAV */
-        nav { position: fixed; top: 0; width: 100%; height: 70px; display: none; align-items: center; padding: 0 4%; z-index: 10000; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--border); box-sizing: border-box;}
-        .nav-link { margin-left: 20px; font-size: 13px; font-weight: 600; cursor: pointer; color: #aaa; }
-        .active-tab { color: var(--ntx-red); }
-
-        /* CONTENU HOME */
-        .main-stage { max-width: 1400px; margin: 0 auto; padding: 90px 4% 20px; }
-        .player-box { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-        video { width: 100%; height: 100%; }
+        /* CONNEXION */
+        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { width: 100%; max-width: 380px; padding: 40px 30px; background: rgba(15,15,15,0.95); border: 1px solid var(--border); border-radius: 15px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .logo { font-weight: 900; font-size: clamp(30px, 8vw, 45px); color: var(--ntx-red); letter-spacing: -3px; margin-bottom: 30px; }
         
-        .cat-selector { background: #111; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 6px; margin: 20px 4% 0; width: 250px; cursor: pointer; }
+        .ntx-input { width: 100%; padding: 15px; background: #111; border: 1px solid #333; color: #fff; border-radius: 8px; margin-bottom: 12px; font-size: 16px; outline: none; transition: 0.3s; }
+        .ntx-input:focus { border-color: var(--ntx-red); }
+        .ntx-btn { width: 100%; padding: 16px; background: var(--ntx-red); color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; text-transform: uppercase; }
 
-        .row-title { font-size: 20px; font-weight: 700; margin: 30px 4% 15px; text-transform: uppercase; }
-        .row-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 0 4% 20px; scrollbar-width: none; }
-        .card { min-width: 220px; aspect-ratio: 16/9; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        /* NAVIGATION */
+        nav { position: fixed; top: 0; width: 100%; height: 70px; display: none; align-items: center; padding: 0 5%; z-index: 10000; background: rgba(0,0,0,0.95); border-bottom: 1px solid var(--border); }
+        .nav-links { margin-left: auto; display: flex; gap: 15px; }
+        .nav-link { font-size: 13px; font-weight: 700; cursor: pointer; color: #888; text-transform: uppercase; }
+        .nav-link.active { color: var(--ntx-red); }
+
+        /* INTERFACE CLIENT */
+        .container { max-width: 1400px; margin: 0 auto; padding: 90px 4% 30px; }
+        .player-box { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 0 30px rgba(229,9,20,0.2); }
+        video { width: 100%; height: 100%; }
+
+        .selector-box { margin: 20px 0; }
+        .cat-select { background: #111; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 8px; width: 100%; max-width: 300px; font-weight: 600; cursor: pointer; }
+
+        .row-title { font-size: 22px; font-weight: 800; margin: 30px 0 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .row-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
+        .row-scroll::-webkit-scrollbar { display: none; }
+        .card { min-width: clamp(160px, 40vw, 240px); aspect-ratio: 16/9; background: var(--card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.3s; overflow: hidden; }
         .card:hover { transform: scale(1.05); border-color: var(--ntx-red); }
-        .card img { width: 100%; height: 100%; object-fit: contain; padding: 15px; box-sizing: border-box; }
+        .card img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
 
-        /* ADMIN */
-        .admin-panel { display: none; padding: 100px 4%; max-width: 1100px; margin: 0 auto; }
-        .box { background: #0a0a0a; padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #222; }
-        .item-list { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #1a1a1a; }
-        .btn-group button { padding: 5px 10px; margin-left: 5px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; }
-        .btn-del { color: #ff4444 !important; border-color: #500 !important; }
+        /* PANNEAU ADMIN */
+        .admin-page { display: none; padding: 100px 4% 50px; max-width: 1000px; margin: 0 auto; }
+        .box { background: #0a0a0a; padding: 25px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #222; }
+        .box h3 { margin-top: 0; color: var(--ntx-red); font-size: 18px; text-transform: uppercase; }
+
+        .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #1a1a1a; gap: 10px; }
+        .admin-item:last-child { border-bottom: none; }
+        .admin-info { flex-grow: 1; font-size: 14px; line-height: 1.4; }
+        .admin-actions { display: flex; gap: 5px; }
+        
+        .small-btn { padding: 8px 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .btn-red { color: #ff4444 !important; border-color: #552222 !important; }
+
+        @media (max-width: 600px) {
+            .admin-item { flex-direction: column; align-items: flex-start; }
+            .admin-actions { margin-top: 10px; width: 100%; justify-content: flex-end; }
+        }
     </style>
 </head>
 <body>
 
 <div id="master-loader">
     <div class="ring"></div>
-    <p id="loader-msg" style="margin-top: 20px; font-weight: 700; color: var(--ntx-red);"></p>
+    <p id="loader-msg" style="margin-top: 20px; font-weight: 800; color: var(--ntx-red); font-size: 14px;"></p>
 </div>
 
 <div class="bg-animated" id="bg-anim"></div>
@@ -67,92 +85,99 @@
         <div class="logo">TV_NTX</div>
         <input type="text" id="l-user" class="ntx-input" placeholder="Identifiant">
         <input type="password" id="l-pass" class="ntx-input" placeholder="Mot de passe">
-        <button class="ntx-btn" onclick="login()">CONNEXION</button>
+        <button class="ntx-btn" onclick="handleLogin()">ACCÉDER AU FLUX</button>
+        <p style="font-size: 10px; color: #444; margin-top: 25px; letter-spacing: 1px;">PRIVATE SERVER | BRICE JCT</p>
     </div>
 </div>
 
 <nav id="navbar">
-    <div class="logo" style="font-size: 22px; margin: 0;">TV_NTX</div>
-    <div style="margin-left: auto; display: flex; align-items: center;">
-        <span class="nav-link" id="tab-home" onclick="showTab('home')">Accueil</span>
-        <span class="nav-link" id="tab-admin" style="display:none; color:var(--ntx-red);" onclick="showTab('admin')">ADMINISTRATION</span>
-        <span class="nav-link" onclick="location.reload()">Quitter</span>
+    <div class="logo" style="font-size: 20px; margin:0;">TV_NTX</div>
+    <div class="nav-links">
+        <span class="nav-link active" id="btn-home" onclick="showSection('home')">Accueil</span>
+        <span class="nav-link" id="btn-admin" style="display:none; border:1px solid var(--ntx-red); padding:2px 8px; border-radius:4px;" onclick="showSection('admin')">ADMIN</span>
+        <span class="nav-link" onclick="location.reload()">OFF</span>
     </div>
 </nav>
 
-<div id="page-home" style="display:none;">
-    <select id="home-filter" class="cat-selector" onchange="renderHome()"></select>
-    <div class="main-stage">
-        <div class="player-box"><video id="video" controls playsinline></video></div>
-        <div id="now-playing" style="padding:10px; color:#666; font-size:13px;">Sélectionnez une chaîne...</div>
+<div id="sec-home" class="container" style="display:none;">
+    <div class="selector-box">
+        <select id="home-cat-filter" class="cat-select" onchange="renderHome()"></select>
     </div>
-    <div id="home-rows"></div>
+    <div class="player-box">
+        <video id="main-video" controls playsinline></video>
+    </div>
+    <p id="video-title" style="margin-top:15px; font-weight:700; color:var(--ntx-red);">PRÊT À DIFFUSER</p>
+    <div id="home-rows-mount"></div>
 </div>
 
-<div id="page-admin" class="admin-panel">
+<div id="sec-admin" class="admin-page">
     
     <div class="box">
-        <h3>1. Gestion des Dossiers</h3>
+        <h3>1. Dossiers (Catégories)</h3>
         <div style="display:flex; gap:10px;">
-            <input type="text" id="new-cat" class="ntx-input" style="margin:0" placeholder="Nom du dossier">
-            <button class="ntx-btn" style="width:150px" onclick="addCat()">CRÉER</button>
+            <input type="text" id="adm-new-cat" class="ntx-input" style="margin:0" placeholder="Nom du dossier">
+            <button class="ntx-btn" style="width:120px;" onclick="addCategory()">CRÉER</button>
         </div>
-        <div id="list-cats" style="margin-top:15px;"></div>
+        <div id="adm-list-cats" style="margin-top:15px;"></div>
     </div>
 
     <div class="box">
         <h3>2. Ajouter une Chaîne</h3>
-        <input type="text" id="c-name" class="ntx-input" placeholder="Nom (Ex: TF1 HD)">
-        <input type="text" id="c-url" class="ntx-input" placeholder="Lien m3u8">
-        <input type="text" id="c-logo" class="ntx-input" placeholder="Lien Image/Logo (PNG/JPG)">
-        <select id="c-cat" class="ntx-input"></select>
-        <button class="ntx-btn" onclick="addChan()">PUBLIER LA CHAÎNE</button>
-        <hr style="border:0; border-top:1px solid #222; margin:20px 0;">
-        <div id="list-chans"></div>
+        <input type="text" id="adm-ch-name" class="ntx-input" placeholder="Nom de la chaîne">
+        <input type="text" id="adm-ch-url" class="ntx-input" placeholder="Lien m3u8">
+        <input type="text" id="adm-ch-logo" class="ntx-input" placeholder="URL Logo (Optionnel)">
+        <select id="adm-ch-cat" class="ntx-input"></select>
+        <button class="ntx-btn" onclick="addChannel()">PUBLIER LA CHAÎNE</button>
+        <div id="adm-list-chans" style="margin-top:20px;"></div>
     </div>
 
     <div class="box">
         <h3>3. Gestion des Comptes Clients</h3>
-        <input type="text" id="u-name" class="ntx-input" placeholder="Identifiant">
-        <input type="text" id="u-pass" class="ntx-input" placeholder="Mot de passe">
-        <input type="date" id="u-date" class="ntx-input">
-        <button class="ntx-btn" onclick="addUser()">CRÉER LE COMPTE</button>
-        <div id="list-users" style="margin-top:20px;"></div>
+        <input type="text" id="adm-u-id" class="ntx-input" placeholder="Identifiant">
+        <input type="text" id="adm-u-pass" class="ntx-input" placeholder="Mot de passe">
+        <input type="date" id="adm-u-date" class="ntx-input">
+        <button class="ntx-btn" onclick="addUser()">CRÉER CLIENT</button>
+        <div id="adm-list-users" style="margin-top:20px;"></div>
+    </div>
+
+    <div class="box" style="text-align:center;">
+        <button class="ntx-btn" style="background:#222; margin-bottom:10px;" onclick="setGlobalKill(true)">COUPER TOUT LE SERVEUR</button>
+        <button class="ntx-btn" style="background:green;" onclick="setGlobalKill(false)">RÉTABLIR LE SERVEUR</button>
     </div>
 </div>
 
 <script>
-    // INITIALISATION DATA
-    let db_users = JSON.parse(localStorage.getItem('ntx_u')) || [
+    // --- BASE DE DONNÉES ---
+    let users = JSON.parse(localStorage.getItem('ntx_u_db')) || [
         { id: 'bricej', mdp: '07061999', role: 'admin', expire: null },
         { id: 'Mariej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31' },
         { id: 'Hervej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31' },
         { id: 'Gauthierr', mdp: 'Rauch67', role: 'user', expire: '2026-12-31' },
         { id: 'Smart100', mdp: 'Smart100', role: 'user', expire: null }
     ];
-    let db_cats = JSON.parse(localStorage.getItem('ntx_c')) || ["TNT", "CANAL", "SPORT"];
-    let db_chans = JSON.parse(localStorage.getItem('ntx_ch')) || [];
+    let categories = JSON.parse(localStorage.getItem('ntx_c_db')) || ["TNT", "CANAL", "SPORT"];
+    let channels = JSON.parse(localStorage.getItem('ntx_h_db')) || [];
+    let isGlobalKill = localStorage.getItem('ntx_kill') === 'true';
 
-    // FOND ANIMÉ
-    for(let i=0; i<12; i++){
-        let s = document.createElement('div'); s.className='film-strip'; s.style.left=(i*10)+'%';
-        document.getElementById('bg-anim').appendChild(s);
+    // Fond animé
+    for(let i=0; i<10; i++){
+        let d = document.createElement('div'); d.className='film-strip'; d.style.left=(i*11)+'%';
+        document.getElementById('bg-anim').appendChild(d);
     }
 
-    // CONNEXION
-    function login() {
+    // --- CONNEXION ---
+    function handleLogin() {
         const u = document.getElementById('l-user').value.trim();
         const p = document.getElementById('l-pass').value.trim();
-        const user = db_users.find(x => x.id === u && x.mdp === p);
+        const found = users.find(x => x.id === u && x.mdp === p);
 
-        if(!user) return alert("Accès refusé : Identifiants TV_NTX incorrects.");
+        if(!found) return alert("Accès refusé.");
         
-        // Verif Expiration
-        if(user.expire && new Date(user.expire) < new Date()) {
+        if(found.expire && new Date(found.expire) < new Date()) {
             return alert("Accès refusé. Merci de régler votre paiement mensuel. Contactez brice à Strassweb67@gmail.com.");
         }
 
-        const msg = user.expire ? `COMPTE VALIDE JUSQU'AU ${user.expire}` : "COMPTE ACTIF SANS LIMITE";
+        const msg = found.expire ? `ACTIF JUSQU'AU ${found.expire}` : "COMPTE ACTIF SANS LIMITE";
         document.getElementById('loader-msg').innerText = msg;
         document.getElementById('master-loader').style.display = 'flex';
 
@@ -160,37 +185,36 @@
             document.getElementById('master-loader').style.display = 'none';
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('navbar').style.display = 'flex';
-            document.getElementById('page-home').style.display = 'block';
-            if(user.role === 'admin') document.getElementById('tab-admin').style.display = 'block';
+            document.getElementById('sec-home').style.display = 'block';
+            if(found.role === 'admin') document.getElementById('btn-admin').style.display = 'block';
             document.querySelectorAll('.film-strip').forEach(s => s.style.opacity = "0.05");
-            
-            initUI();
+            refreshAll();
         }, 900);
     }
 
-    function initUI() {
-        renderHomeSelect();
+    function refreshAll() {
+        renderHomeMenu();
         renderHome();
         renderAdminCats();
         renderAdminChans();
         renderAdminUsers();
     }
 
-    // --- ACCUEIL ---
-    function renderHomeSelect() {
-        const s = document.getElementById('home-filter');
+    // --- LOGIQUE CLIENT ---
+    function renderHomeMenu() {
+        const s = document.getElementById('home-cat-filter');
         s.innerHTML = '<option value="ALL">TOUS LES DOSSIERS</option>';
-        db_cats.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
+        categories.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
     }
 
     function renderHome() {
-        const cont = document.getElementById('home-rows');
-        const filter = document.getElementById('home-filter').value;
-        cont.innerHTML = '';
+        const mount = document.getElementById('home-rows-mount');
+        const filter = document.getElementById('home-cat-filter').value;
+        mount.innerHTML = '';
+        const targetCats = filter === 'ALL' ? categories : [filter];
 
-        const activeCats = filter === 'ALL' ? db_cats : [filter];
-        activeCats.forEach(cat => {
-            const chs = db_chans.filter(x => x.cat === cat);
+        targetCats.forEach(cat => {
+            const chs = channels.filter(x => x.cat === cat);
             if(chs.length > 0) {
                 let html = `<div class="row-title">${cat}</div><div class="row-scroll">`;
                 chs.forEach(ch => {
@@ -199,62 +223,62 @@
                     </div>`;
                 });
                 html += `</div>`;
-                cont.innerHTML += html;
+                mount.innerHTML += html;
             }
         });
     }
 
     const hls = new Hls();
     function play(url, name) {
-        document.getElementById('now-playing').innerText = "Diffusion : " + name;
-        hls.loadSource(url); hls.attachMedia(document.getElementById('video'));
-        hls.on(Hls.Events.MANIFEST_PARSED, () => document.getElementById('video').play());
+        if(isGlobalKill && users.find(u => u.role === 'admin').id !== 'bricej') return alert("Le serveur est en maintenance.");
+        document.getElementById('video-title').innerText = "DIFFUSION : " + name;
+        hls.loadSource(url); hls.attachMedia(document.getElementById('main-video'));
+        hls.on(Hls.Events.MANIFEST_PARSED, () => document.getElementById('main-video').play());
     }
 
-    // --- ADMIN ---
-    function addCat() {
-        const n = document.getElementById('new-cat').value.trim();
-        if(n && !db_cats.includes(n)) { db_cats.push(n); save(); initUI(); }
+    // --- LOGIQUE ADMIN ---
+    function addCategory() {
+        const n = document.getElementById('adm-new-cat').value.trim();
+        if(n && !categories.includes(n)) { categories.push(n); save(); refreshAll(); }
     }
 
-    function addChan() {
-        const n = document.getElementById('c-name').value;
-        const u = document.getElementById('c-url').value;
-        const l = document.getElementById('c-logo').value;
-        const c = document.getElementById('c-cat').value;
-        if(n && u) { db_chans.push({name:n, url:u, logo:l, cat:c}); save(); initUI(); }
+    function addChannel() {
+        const n = document.getElementById('adm-ch-name').value;
+        const u = document.getElementById('adm-ch-url').value;
+        const l = document.getElementById('adm-ch-logo').value;
+        const c = document.getElementById('adm-ch-cat').value;
+        if(n && u) { channels.push({name:n, url:u, logo:l, cat:c}); save(); refreshAll(); }
     }
 
     function addUser() {
-        const n = document.getElementById('u-name').value;
-        const p = document.getElementById('u-pass').value;
-        const d = document.getElementById('u-date').value;
-        if(n && p) { db_users.push({id:n, mdp:p, role:'user', expire:d||null}); save(); initUI(); }
+        const n = document.getElementById('adm-u-id').value;
+        const p = document.getElementById('adm-u-pass').value;
+        const d = document.getElementById('adm-u-date').value;
+        if(n && p) { users.push({id:n, mdp:p, role:'user', expire:d||null}); save(); refreshAll(); }
     }
 
     function renderAdminCats() {
-        const list = document.getElementById('list-cats');
-        list.innerHTML = '';
-        db_cats.forEach((c, i) => {
-            list.innerHTML += `<div class="item-list"><span>${c}</span> 
-            <button class="btn-del" onclick="db_cats.splice(${i},1); save(); initUI();">Supprimer</button></div>`;
+        const mount = document.getElementById('adm-list-cats');
+        mount.innerHTML = '';
+        categories.forEach((c, i) => {
+            mount.innerHTML += `<div class="admin-item"><span>${c}</span>
+            <button class="small-btn btn-red" onclick="categories.splice(${i},1); save(); refreshAll();">Supprimer</button></div>`;
         });
-        // Sync select admin
-        const s = document.getElementById('c-cat');
-        s.innerHTML = '';
-        db_cats.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
+        const sel = document.getElementById('adm-ch-cat');
+        sel.innerHTML = '';
+        categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
     }
 
     function renderAdminChans() {
-        const list = document.getElementById('list-chans');
-        list.innerHTML = '<h4>Chaînes enregistrées :</h4>';
-        db_chans.forEach((ch, i) => {
-            list.innerHTML += `<div class="item-list">
-                <span><b>[${ch.cat}]</b> ${ch.name}</span>
-                <div class="btn-group">
-                    <button onclick="moveCh(${i}, -1)">↑</button>
-                    <button onclick="moveCh(${i}, 1)">↓</button>
-                    <button class="btn-del" onclick="db_chans.splice(${i},1); save(); initUI();">X</button>
+        const mount = document.getElementById('adm-list-chans');
+        mount.innerHTML = '<h4>Chaînes & Ordre</h4>';
+        channels.forEach((ch, i) => {
+            mount.innerHTML += `<div class="admin-item">
+                <div class="admin-info"><b>[${ch.cat}]</b> ${ch.name}</div>
+                <div class="admin-actions">
+                    <button class="small-btn" onclick="moveCh(${i}, -1)">↑</button>
+                    <button class="small-btn" onclick="moveCh(${i}, 1)">↓</button>
+                    <button class="small-btn btn-red" onclick="channels.splice(${i},1); save(); refreshAll();">X</button>
                 </div>
             </div>`;
         });
@@ -262,35 +286,34 @@
 
     function moveCh(idx, dir) {
         let t = idx + dir;
-        if(t >= 0 && t < db_chans.length) {
-            [db_chans[idx], db_chans[t]] = [db_chans[t], db_chans[idx]];
-            save(); initUI();
-        }
+        if(t >= 0 && t < channels.length) { [channels[idx], channels[t]] = [channels[t], channels[idx]]; save(); refreshAll(); }
     }
 
     function renderAdminUsers() {
-        const list = document.getElementById('list-users');
-        list.innerHTML = '<h4>Liste des comptes :</h4>';
-        db_users.forEach((u, i) => {
+        const mount = document.getElementById('adm-list-users');
+        mount.innerHTML = '<h4>Clients Enregistrés</h4>';
+        users.forEach((u, i) => {
             if(u.role === 'admin') return;
-            list.innerHTML += `<div class="item-list">
-                <span><b>${u.id}</b> (Mdp: ${u.mdp}) - Exp: ${u.expire || '∞'}</span>
-                <button class="btn-del" onclick="db_users.splice(${i},1); save(); initUI();">Supprimer</button>
+            mount.innerHTML += `<div class="admin-item">
+                <div class="admin-info"><b>${u.id}</b><br>Mdp: ${u.mdp} | Exp: ${u.expire||'∞'}</div>
+                <button class="small-btn btn-red" onclick="users.splice(${i},1); save(); refreshAll();">Supprimer</button>
             </div>`;
         });
     }
 
     function save() {
-        localStorage.setItem('ntx_u', JSON.stringify(db_users));
-        localStorage.setItem('ntx_c', JSON.stringify(db_cats));
-        localStorage.setItem('ntx_ch', JSON.stringify(db_chans));
+        localStorage.setItem('ntx_u_db', JSON.stringify(users));
+        localStorage.setItem('ntx_c_db', JSON.stringify(categories));
+        localStorage.setItem('ntx_h_db', JSON.stringify(channels));
     }
 
-    function showTab(id) {
-        document.getElementById('page-home').style.display = (id==='home'?'block':'none');
-        document.getElementById('page-admin').style.display = (id==='admin'?'block':'none');
-        document.getElementById('tab-home').classList.toggle('active-tab', id==='home');
-        document.getElementById('tab-admin').classList.toggle('active-tab', id==='admin');
+    function setGlobalKill(val) { isGlobalKill = val; localStorage.setItem('ntx_kill', val); alert(val?"Serveur COUPÉ":"Serveur RÉTABLI"); }
+
+    function showSection(id) {
+        document.getElementById('sec-home').style.display = (id==='home'?'block':'none');
+        document.getElementById('sec-admin').style.display = (id==='admin'?'block':'none');
+        document.getElementById('btn-home').classList.toggle('active', id==='home');
+        document.getElementById('btn-admin').classList.toggle('active', id==='admin');
     }
 </script>
 </body>
