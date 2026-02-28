@@ -3,280 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NTX | Premium 8K Experience</title>
+    <title>TV_NTX | 8K Ultra-Fluidité</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --ntx-red: #e50914;
-            --bg: #000000;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: #fff; margin: 0; overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* --- LOGIN NEXT.JS STYLE --- */
-        #login-page {
-            position: fixed; inset: 0; z-index: 10000;
-            background: #000; display: flex; justify-content: center; align-items: center;
-        }
-        .login-card {
-            width: 100%; max-width: 380px; padding: 40px;
-            background: rgba(10,10,10,1); border: 1px solid var(--border);
-            border-radius: 12px; text-align: center;
-        }
-
-        /* --- NAVIGATION INTUITIVE --- */
-        nav {
-            position: fixed; top: 0; width: 100%; height: 65px;
-            display: flex; align-items: center; padding: 0 4%;
-            z-index: 5000; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-            box-sizing: border-box; transition: 0.3s;
-        }
-        nav.scrolled { background: #000; border-bottom: 0.5px solid var(--border); }
+        :root { --ntx-red: #e50914; --bg: #000; --border: rgba(255,255,255,0.08); }
         
-        .nav-left { display: flex; align-items: center; gap: 20px; }
-        .nav-right { margin-left: auto; display: flex; gap: 15px; }
-
-        .logo { font-weight: 900; font-size: 24px; color: var(--ntx-red); letter-spacing: -1.5px; text-decoration: none; }
-        .admin-tag { 
-            background: var(--ntx-red); color: white; font-size: 10px; font-weight: 800; 
-            padding: 2px 8px; border-radius: 4px; cursor: pointer; text-transform: uppercase;
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: var(--bg); color: #fff; font-family: 'Inter', sans-serif;
+            overflow-x: hidden; -webkit-font-smoothing: antialiased;
         }
 
-        /* --- LECTEUR 8K AVEC GLOW --- */
-        .main-stage { max-width: 1400px; margin: 0 auto; padding: 80px 4% 20px; position: relative; }
-        
-        /* L'effet de lueur derrière le lecteur */
-        .player-glow-wrap { position: relative; border-radius: 12px; box-shadow: 0 0 40px rgba(229, 9, 20, 0.2); }
-        .player-glow-wrap::before {
-            content: ''; position: absolute; inset: -10px; 
-            background: var(--ntx-red); filter: blur(60px); opacity: 0.15; z-index: -1;
+        /* --- FOND CINÉMATIQUE ANIMÉ --- */
+        .bg-animated { position: fixed; inset: 0; z-index: -1; background: #000; overflow: hidden; }
+        .film-strip { 
+            position: absolute; width: 180px; height: 300%; 
+            background: linear-gradient(to bottom, transparent, rgba(229, 9, 20, 0.05), transparent);
+            border-left: 1px solid rgba(255,255,255,0.02);
+            transform: rotate(20deg); top: -100%; animation: moveStrip 25s linear infinite;
+            transition: opacity 1s ease;
         }
+        @keyframes moveStrip { from { transform: rotate(20deg) translateY(0); } to { transform: rotate(20deg) translateY(33.3%); } }
 
-        .player-box {
-            position: relative; width: 100%; aspect-ratio: 16/9;
-            background: #000; border-radius: 8px; overflow: hidden;
-            border: 1px solid var(--border);
+        /* --- OVERLAY CHARGEMENT --- */
+        #master-loader { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 20000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(15px); text-align: center;
         }
-        video { width: 100%; height: 100%; object-fit: contain; }
+        .ring { 
+            width: 60px; height: 60px; border: 3px solid rgba(229,9,20,0.1); 
+            border-top: 3px solid var(--ntx-red); border-radius: 50%; 
+            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            box-shadow: 0 0 20px rgba(229,9,20,0.2);
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* --- BARRE QUALITÉ & EPG --- */
-        .smart-bar {
-            margin-top: 15px; background: var(--glass); border: 1px solid var(--border);
-            border-radius: 8px; padding: 10px 20px; display: flex;
-            justify-content: space-between; align-items: center; cursor: pointer;
+        /* --- CONNEXION --- */
+        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
+        .login-card { 
+            width: 90%; max-width: 400px; padding: 50px 40px; 
+            background: rgba(10,10,10,0.8); border: 1px solid var(--border); 
+            border-radius: 16px; backdrop-filter: blur(25px); text-align: center;
         }
-        .quality-tags { display: flex; gap: 8px; }
-        .q-pill { font-size: 9px; font-weight: 900; color: #666; border: 1px solid #333; padding: 2px 6px; border-radius: 3px; }
-        .q-pill.active { color: var(--ntx-red); border-color: var(--ntx-red); }
+        .logo-main { font-weight: 900; font-size: 45px; color: var(--ntx-red); letter-spacing: -3px; margin-bottom: 30px; }
+
+        .ntx-input { 
+            width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid #333; 
+            color: #fff; border-radius: 8px; font-size: 16px; margin-bottom: 15px; box-sizing: border-box;
+            transition: 0.3s;
+        }
+        .ntx-input:focus { border-color: var(--ntx-red); outline: none; background: rgba(255,255,255,0.08); }
+        .ntx-btn { 
+            width: 100%; padding: 18px; background: var(--ntx-red); color: #fff; 
+            border: none; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .ntx-btn:hover { transform: scale(1.02); background: #ff0000; }
+
+        /* --- INTERFACE PRINCIPALE --- */
+        nav { 
+            position: fixed; top: 0; width: 100%; height: 75px; display: none; 
+            align-items: center; padding: 0 5%; z-index: 5000; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); box-sizing: border-box; 
+        }
+        nav.scrolled { background: #000; border-bottom: 1px solid var(--border); }
+
+        .main-stage { max-width: 1400px; margin: 0 auto; padding: 100px 5% 20px; }
+        .player-wrap { 
+            position: relative; border-radius: 12px; overflow: hidden; 
+            background: #000; border: 1px solid var(--border); aspect-ratio: 16/9;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.8);
+        }
+        video { width: 100%; height: 100%; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); }
+
+        /* --- EPG BAR --- */
+        .epg-mini { 
+            background: rgba(15,15,15,0.8); border: 1px solid var(--border); border-top: none;
+            padding: 15px 25px; border-radius: 0 0 12px 12px; display: flex; 
+            justify-content: space-between; align-items: center; font-size: 14px;
+        }
 
         /* --- CATALOGUE --- */
-        .row-title { font-size: 18px; font-weight: 700; margin: 35px 4% 15px; color: #efefef; }
-        .scroll-row { display: flex; gap: 12px; overflow-x: auto; padding: 0 4% 20px; scrollbar-width: none; }
-        .scroll-row::-webkit-scrollbar { display: none; }
-        
-        .card {
-            min-width: 200px; aspect-ratio: 16/9; background: #111;
-            border-radius: 4px; border: 1px solid var(--border);
-            transition: transform 0.4s cubic-bezier(0.2, 1, 0.2, 1);
-            cursor: pointer; position: relative;
+        .row-title { font-size: 22px; font-weight: 800; margin: 40px 5% 15px; letter-spacing: -0.5px; }
+        .row-scroll { 
+            display: flex; gap: 15px; overflow-x: auto; padding: 0 5% 40px; 
+            scrollbar-width: none; opacity: 0; transform: translateY(20px); 
         }
-        .card:hover { transform: scale(1.08); z-index: 10; border-color: #fff; }
-        .card img { width: 100%; height: 100%; object-fit: contain; padding: 15px; box-sizing: border-box; }
+        .row-scroll::-webkit-scrollbar { display: none; }
+        .card { 
+            min-width: 260px; aspect-ratio: 16/9; background: #111; border: 1px solid var(--border); 
+            border-radius: 8px; transition: 0.5s cubic-bezier(0.2, 1, 0.2, 1); cursor: pointer; overflow: hidden;
+        }
+        .card:hover { transform: scale(1.08); border-color: #fff; z-index: 100; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        .card img { width: 100%; height: 100%; object-fit: contain; padding: 20px; box-sizing: border-box; }
 
-        /* --- MOBILE --- */
+        /* --- ADMIN --- */
+        .admin-page { display: none; padding: 120px 5% 50px; max-width: 900px; margin: 0 auto; }
+        .box { background: #0a0a0a; border: 1px solid #222; padding: 30px; border-radius: 12px; margin-bottom: 25px; }
+        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #1a1a1a; }
+
         @media (max-width: 768px) {
-            .nav-left { gap: 10px; }
-            .logo { font-size: 20px; }
-            .main-stage { padding-top: 70px; }
-            .card { min-width: 150px; }
-            .row-title { font-size: 15px; margin-top: 20px; }
+            .login-card { padding: 30px; }
+            .logo-main { font-size: 32px; }
+            .card { min-width: 170px; }
+            .row-title { font-size: 17px; }
         }
-
-        /* SPINNER */
-        .loader {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid var(--ntx-red); border-radius: 50%;
-            animation: spin 0.8s linear infinite; display: none;
-        }
-        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        /* ADMIN PANEL */
-        .panel { display: none; padding: 100px 5% 40px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="login-page">
-    <div class="login-card">
-        <div class="logo">NTX</div>
-        <p style="font-size: 10px; color: #555; margin-bottom: 30px; letter-spacing: 2px;">BY BRICE JCT | 8K READY</p>
-        <input type="text" id="u" placeholder="Utilisateur" style="width:100%; padding:14px; background:#222; border:none; color:#fff; border-radius:4px; margin-bottom:12px;">
-        <input type="password" id="p" placeholder="Mot de passe" style="width:100%; padding:14px; background:#222; border:none; color:#fff; border-radius:4px; margin-bottom:20px;">
-        <button onclick="login()" style="width:100%; padding:14px; background:var(--ntx-red); color:#fff; border:none; border-radius:4px; font-weight:800; cursor:pointer;">SE CONNECTER</button>
+    <div id="master-loader">
+        <div class="ring"></div>
+        <div id="loader-msg" style="margin-top: 25px; font-weight: 700; letter-spacing: 2px; font-size: 13px; color: var(--ntx-red);"></div>
     </div>
-</div>
 
-<nav id="navbar" style="display:none;">
-    <div class="nav-left">
-        <a href="#" class="logo" onclick="location.reload()">NTX</a>
-        <div id="adm-btn" class="admin-tag" style="display:none;" onclick="showPage('admin')">Admin</div>
-    </div>
-    <div class="nav-right">
-        <span onclick="showPage('home')" style="cursor:pointer; font-size: 13px;">Accueil</span>
-        <span onclick="logout()" style="cursor:pointer; font-size: 13px; color: #888;">Quitter</span>
-    </div>
-</nav>
+    <div class="bg-animated" id="bg-anim"></div>
 
-<div id="page-home" style="display:none;">
-    <div class="main-stage">
-        <div class="player-glow-wrap">
-            <div class="player-box">
-                <div id="loader" class="loader"></div>
-                <video id="video" controls playsinline></video>
+    <section id="login-page">
+        <div class="login-card">
+            <div class="logo-main">TV_NTX</div>
+            <input type="text" id="ntx_user" class="ntx-input" placeholder="Identifiant">
+            <input type="password" id="ntx_pass" class="ntx-input" placeholder="Mot de passe">
+            <button class="ntx-btn" onclick="handleLogin()">SE CONNECTER</button>
+            <p style="font-size: 10px; color: #444; margin-top: 25px; letter-spacing: 1px;">PRIVATE SERVER | @by Brice jct</p>
+        </div>
+    </section>
+
+    <nav id="navbar">
+        <div class="logo-main" style="font-size: 24px; margin:0; cursor:pointer;" onclick="location.reload()">TV_NTX</div>
+        <div style="margin-left: auto; display:flex; gap:25px; align-items:center;">
+            <span id="admin-badge" style="display:none; color:var(--ntx-red); font-weight:900; font-size:12px; cursor:pointer;" onclick="switchTab('admin')">ADMINISTRATION</span>
+            <span onclick="switchTab('home')" style="cursor:pointer; font-size:13px; font-weight:600;">Accueil</span>
+            <span onclick="location.reload()" style="cursor:pointer; font-size:13px; color: #666;">Quitter</span>
+        </div>
+    </nav>
+
+    <main id="ui-home" style="display:none;">
+        <div class="main-stage">
+            <div class="player-wrap">
+                <video id="main-player" controls playsinline></video>
+            </div>
+            <div class="epg-mini">
+                <span id="playing-title" style="font-weight:700; letter-spacing:-0.3px;">En attente de diffusion...</span>
+                <span id="live-clock" style="color:var(--ntx-red); font-weight:800; font-variant-numeric: tabular-nums;">00:00:00</span>
             </div>
         </div>
+        <div id="content-rows"></div>
+    </main>
 
-        <div class="smart-bar">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <span id="ch-active" style="font-weight:700; font-size:14px;">Sélectionnez un flux</span>
-                <div class="quality-tags">
-                    <span class="q-pill" id="pill-4k">4K</span>
-                    <span class="q-pill" id="pill-1080">1080P</span>
-                    <span class="q-pill active">AUTO</span>
-                </div>
+    <section id="ui-admin" class="admin-page">
+        <div class="box">
+            <h2 style="margin-top:0;">Contrôle Général du Flux</h2>
+            <div style="display:flex; gap:10px;">
+                <button class="ntx-btn" style="background:#222;" onclick="setGlobalKill(true)">COUPER TOUT LE SERVEUR</button>
+                <button class="ntx-btn" style="background:green;" onclick="setGlobalKill(false)">RÉACTIVER TOUT</button>
             </div>
-            <span id="clock" style="font-size:13px; font-weight:600; color:#888;">--:--</span>
         </div>
-    </div>
-
-    <div id="rows"></div>
-</div>
-
-<div id="page-admin" class="panel">
-    <h2 style="border-left: 4px solid var(--ntx-red); padding-left: 15px;">Configuration Serveur</h2>
-    <div style="background:#111; padding:20px; border-radius:8px; margin-top:20px;">
-        <input type="text" id="c-name" placeholder="Nom" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333;">
-        <input type="text" id="c-url" placeholder="URL m3u8" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333;">
-        <select id="c-folder" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333;">
-            <option value="TNT">TNT</option>
-            <option value="CANAL+">CANAL+</option>
-            <option value="BEIN">BEIN SPORT</option>
-            <option value="FILMS">FILMS</option>
-        </select>
-        <button onclick="addChan()" style="padding:10px 20px; background:var(--ntx-red); color:#fff; border:none; border-radius:4px; font-weight:700;">AJOUTER AU CATALOGUE</button>
-    </div>
-</div>
+        <div class="box">
+            <h3>Ajouter une Chaîne / Film</h3>
+            <input type="text" id="add-name" class="ntx-input" placeholder="Nom">
+            <input type="text" id="add-url" class="ntx-input" placeholder="URL m3u8">
+            <select id="add-cat" class="ntx-input">
+                <option value="TNT">TNT France</option>
+                <option value="CANAL">Canal+ / Cinéma</option>
+                <option value="SPORT">Sport HD</option>
+                <option value="FILMS">Films / VOD</option>
+            </select>
+            <button class="ntx-btn" onclick="addNewContent()">AJOUTER AU CATALOGUE</button>
+        </div>
+        <div class="box" id="user-manager">
+            <h3>Gestion des Comptes Clients</h3>
+            </div>
+    </section>
 
 <script>
-    const hls = new Hls({ capLevelToPlayerSize: true });
-    const video = document.getElementById('video');
-    const loader = document.getElementById('loader');
-    let timer = 0;
+    /* --- CONFIGURATION COMPTES --- */
+    const initialUsers = [
+        { id: 'bricej', mdp: '07061999', role: 'admin', expire: null, active: true },
+        { id: 'Mariej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31', active: true },
+        { id: 'Hervej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31', active: true },
+        { id: 'Gauthierr', mdp: 'Rauch67', role: 'user', expire: '2026-12-31', active: true },
+        { id: 'Smart100', mdp: 'Smart100', role: 'user', expire: null, active: true }
+    ];
 
-    function login() {
-        const u = document.getElementById('u').value;
-        const p = document.getElementById('p').value;
-        // Tes comptes originaux
-        if((u === 'Admin' && p === 'Treza670') || u === 'Gauthier') {
+    let db_users = JSON.parse(localStorage.getItem('ntx_users')) || initialUsers;
+    let currentUser = null;
+    let globalKill = localStorage.getItem('ntx_kill') === 'true';
+
+    /* --- MOTEUR HLS ULTRA-FLUIDITÉ --- */
+    const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+        backBufferLength: 60,
+        maxBufferLength: 30,
+        startLevel: -1,
+        capLevelToPlayerSize: true
+    });
+    const player = document.getElementById('main-player');
+
+    // Générer fond animé
+    for(let i=0; i<15; i++) {
+        let s = document.createElement('div'); s.className='film-strip';
+        s.style.left = (i*8)+'%'; s.style.animationDelay = (i*0.5)+'s';
+        document.getElementById('bg-anim').appendChild(s);
+    }
+
+    function handleLogin() {
+        const u = document.getElementById('ntx_user').value;
+        const p = document.getElementById('ntx_pass').value;
+        const user = db_users.find(x => x.id === u && x.mdp === p);
+
+        if(!user) return alert("Identifiants incorrects sur TV_NTX.");
+        
+        // Check Expiration
+        if(user.expire && new Date(user.expire) < new Date()) {
+            return alert("L'accès a été refusé. Merci de régler votre paiement mensuel. Contactez brice à Strassweb67@gmail.com.");
+        }
+
+        // Check Kill Switch individuel
+        if(!user.active && user.role !== 'admin') return alert("Votre compte a été suspendu par l'administrateur.");
+
+        currentUser = user;
+        const flashMsg = user.expire ? `COMPTE ACTIF JUSQU'AU ${user.expire}` : "COMPTE ACTIF SANS LIMITE";
+        
+        showFlash(flashMsg, () => {
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('navbar').style.display = 'flex';
-            document.getElementById('page-home').style.display = 'block';
-            if(u === 'Admin') document.getElementById('adm-btn').style.display = 'block';
-            render();
-            startTime();
-            // Reconnexion 1h
-            setTimeout(() => { alert("Session expirée."); location.reload(); }, 3600000);
-        } else { alert("Identifiants incorrects."); }
-    }
-
-    function play(url, name) {
-        timer = Date.now();
-        loader.style.display = 'block';
-        document.getElementById('ch-active').innerText = name;
-        
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play();
+            document.getElementById('ui-home').style.display = 'block';
+            if(user.role === 'admin') document.getElementById('admin-badge').style.display = 'block';
+            
+            // Adoucir fond
+            document.querySelectorAll('.film-strip').forEach(s => s.style.opacity = "0.1");
+            
+            startClock();
+            renderContent();
+            renderAdminUsers();
         });
-
-        video.onplaying = () => {
-            loader.style.display = 'none';
-            const diff = (Date.now() - timer) / 1000;
-            // SMART QUALITY : Si > 2.5s on descend
-            if(diff > 2.5) {
-                console.log("Switch 720p (Vitesse: " + diff + "s)");
-                const lvl = hls.levels.findIndex(l => l.height <= 720);
-                if(lvl !== -1) hls.currentLevel = lvl;
-            } else {
-                document.getElementById('pill-1080').classList.add('active');
-            }
-        };
-        window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
-    function render() {
-        const rowCont = document.getElementById('rows');
+    function showFlash(msg, cb) {
+        const loader = document.getElementById('master-loader');
+        document.getElementById('loader-msg').innerText = msg;
+        loader.style.display = 'flex';
+        setTimeout(() => { 
+            loader.style.display = 'none'; 
+            cb(); 
+            // Animation d'entrée des rangées
+            document.querySelectorAll('.row-scroll').forEach((r, i) => {
+                setTimeout(() => { r.style.opacity = "1"; r.style.transform = "translateY(0)"; }, i * 200);
+            });
+        }, 900);
+    }
+
+    function renderContent() {
+        const mount = document.getElementById('content-rows');
         const lib = JSON.parse(localStorage.getItem('ntx_lib')) || [];
-        const folders = ["TNT", "CANAL+", "BEIN", "FILMS"];
-        
-        rowCont.innerHTML = '';
-        folders.forEach(f => {
-            const items = lib.filter(i => i.folder === f);
+        const cats = ["TNT", "CANAL", "SPORT", "FILMS"];
+        mount.innerHTML = '';
+
+        cats.forEach(c => {
+            const items = lib.filter(it => it.cat === c);
             if(items.length > 0) {
-                let html = `<div class="row-title">${f}</div><div class="scroll-row">`;
+                let html = `<div class="row-title">${c}</div><div class="row-scroll">`;
                 items.forEach(it => {
-                    html += `<div class="card" onclick="play('${it.url}', '${it.name}')">
-                        <img src="${it.logo || 'https://via.placeholder.com/200x112/111/fff?text=NTX'}">
+                    html += `<div class="card" onclick="playStream('${it.url}', '${it.name}')">
+                        <img src="https://via.placeholder.com/300x168/111/eee?text=${it.name}">
                     </div>`;
                 });
                 html += `</div>`;
-                rowCont.innerHTML += html;
+                mount.innerHTML += html;
             }
         });
     }
 
-    function addChan() {
-        const n = document.getElementById('c-name').value;
-        const u = document.getElementById('c-url').value;
-        const f = document.getElementById('c-folder').value;
+    function playStream(url, name) {
+        if(globalKill && currentUser.role !== 'admin') return alert("Le flux est actuellement coupé.");
+        
+        document.getElementById('playing-title').innerText = "DIRECT HD : " + name;
+        document.getElementById('master-loader').style.display = 'flex';
+        document.getElementById('loader-msg').innerText = "OPTIMISATION FLUIDITÉ...";
+
+        hls.loadSource(url);
+        hls.attachMedia(player);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            player.play();
+            setTimeout(() => document.getElementById('master-loader').style.display = 'none', 500);
+        });
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    /* --- FONCTIONS ADMIN --- */
+    function addNewContent() {
+        const n = document.getElementById('add-name').value;
+        const u = document.getElementById('add-url').value;
+        const c = document.getElementById('add-cat').value;
         if(n && u) {
             let lib = JSON.parse(localStorage.getItem('ntx_lib')) || [];
-            lib.push({name:n, url:u, folder:f});
+            lib.push({name:n, url:u, cat:c});
             localStorage.setItem('ntx_lib', JSON.stringify(lib));
-            alert("Ajouté !");
-            render();
+            alert("Contenu ajouté !");
+            renderContent();
         }
     }
 
-    function showPage(id) {
-        document.getElementById('page-home').style.display = (id === 'home' ? 'block' : 'none');
-        document.getElementById('page-admin').style.display = (id === 'admin' ? 'block' : 'none');
+    function renderAdminUsers() {
+        const cont = document.getElementById('user-manager');
+        cont.innerHTML = '<h3>Gestion des Comptes Clients</h3>';
+        db_users.forEach((u, i) => {
+            if(u.role === 'admin') return;
+            cont.innerHTML += `
+                <div class="user-item">
+                    <div><b>${u.id}</b><br><small>${u.expire || 'Illimité'}</small></div>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="toggleUser(${i})" style="background:${u.active?'green':'#444'}; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">
+                            ${u.active?'ACTIF':'COUPÉ'}
+                        </button>
+                        <button onclick="deleteUser(${i})" style="background:none; border:none; color:red; cursor:pointer;">Supprimer</button>
+                    </div>
+                </div>`;
+        });
     }
 
-    function startTime() {
+    function toggleUser(idx) { db_users[idx].active = !db_users[idx].active; saveUsers(); renderAdminUsers(); }
+    function deleteUser(idx) { db_users.splice(idx,1); saveUsers(); renderAdminUsers(); }
+    function saveUsers() { localStorage.setItem('ntx_users', JSON.stringify(db_users)); }
+    function setGlobalKill(val) { globalKill = val; localStorage.setItem('ntx_kill', val); alert(val?"Flux mondial coupé.":"Flux mondial rétabli."); }
+
+    function switchTab(id) {
+        document.getElementById('ui-home').style.display = (id==='home'?'block':'none');
+        document.getElementById('ui-admin').style.display = (id==='admin'?'block':'none');
+    }
+
+    function startClock() {
         setInterval(() => {
-            const n = new Date();
-            document.getElementById('clock').innerText = n.getHours() + ":" + String(n.getMinutes()).padStart(2, '0');
+            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString();
         }, 1000);
     }
 
-    function logout() { location.reload(); }
-
     window.onscroll = () => {
-        if(window.scrollY > 20) document.getElementById('navbar').classList.add('scrolled');
-        else document.getElementById('navbar').classList.remove('scrolled');
+        const nav = document.getElementById('navbar');
+        if(window.scrollY > 40) nav.classList.add('scrolled');
+        else nav.classList.remove('scrolled');
     };
+
+    // Sécurité session 1h
+    setTimeout(() => { alert("Session expirée."); location.reload(); }, 3600000);
 </script>
 </body>
 </html>
