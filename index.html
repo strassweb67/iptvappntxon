@@ -3,268 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BJVidéo - IPTV Pro Control</title>
+    <title>NTX | Premium 8K Experience</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-red: #ff0000; --bg-dark: #0a0a0a; --nav-h: 65px; --transition: 0.3s ease; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg-dark); color: white; margin: 0; overflow-x: hidden; }
-        
-        /* NAVIGATION */
-        nav { position: fixed; top: 0; width: 100%; height: var(--nav-h); display: flex; align-items: center; padding: 0 4%; background: #000; z-index: 2000; border-bottom: 1px solid #1a1a1a; }
-        .logo { color: var(--neon-red); font-size: 22px; font-weight: 800; text-decoration: none; }
-        .nav-menu { display: flex; gap: 10px; margin-left: auto; align-items: center; }
-        .nav-btn { background: #1a1a1a; border: 1px solid #333; color: white; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 14px; }
-        .nav-btn:hover { background: var(--neon-red); }
-
-        /* LECTEUR DOUBLE MODE */
-        .player-container { margin-top: var(--nav-h); width: 100%; transition: var(--transition); background: #000; position: relative; }
-        .mode-full { height: 65vh; }
-        .mode-mini { height: 200px; width: 350px; position: fixed; bottom: 20px; right: 20px; z-index: 3000; border: 2px solid var(--neon-red); border-radius: 15px; box-shadow: 0 0 30px #000; }
-        video { width: 100%; height: 100%; object-fit: contain; }
-        
-        .toggle-view { position: absolute; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.6); border: 1px solid white; color: white; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; }
-
-        /* CATEGORIES & FILTRES */
-        .filter-bar { padding: 15px 4%; background: #111; display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #222; }
-        .search-box { width: 92%; margin: 10px 4%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 10px; }
-
-        /* GRILLE */
-        .content-section { padding: 10px 4% 100px; }
-        .group-title { font-size: 18px; margin: 20px 0 10px; border-left: 4px solid var(--neon-red); padding-left: 10px; text-transform: uppercase; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .card { background: #151515; border-radius: 10px; overflow: hidden; border: 1px solid #222; cursor: pointer; transition: 0.2s; position: relative; }
-        .card:hover { border-color: var(--neon-red); transform: scale(1.03); }
-        .card img { width: 100%; height: 80px; object-fit: contain; background: #000; padding: 10px; box-sizing: border-box; }
-        .card p { font-size: 11px; text-align: center; margin: 8px 0; font-weight: 600; }
-
-        /* ADMIN STYLE */
-        .panel { display: none; padding: 80px 4%; }
-        .box { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; background: #000; border: 1px solid #333; color: white; border-radius: 5px; }
-        .admin-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin: 5px 0; border-radius: 5px; font-size: 12px; border: 1px solid #222; }
-        .btn-move { background: none; color: #555; border: none; cursor: pointer; font-size: 18px; }
-        .btn-move:hover { color: var(--neon-red); }
-
-        #profile-selector { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-
-        @media (max-width: 768px) {
-            .grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .mode-mini { width: 180px; height: 110px; }
+        :root {
+            --ntx-red: #e50914;
+            --bg: #000000;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
         }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #fff; margin: 0; overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- LOGIN NEXT.JS STYLE --- */
+        #login-page {
+            position: fixed; inset: 0; z-index: 10000;
+            background: #000; display: flex; justify-content: center; align-items: center;
+        }
+        .login-card {
+            width: 100%; max-width: 380px; padding: 40px;
+            background: rgba(10,10,10,1); border: 1px solid var(--border);
+            border-radius: 12px; text-align: center;
+        }
+
+        /* --- NAVIGATION INTUITIVE --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 65px;
+            display: flex; align-items: center; padding: 0 4%;
+            z-index: 5000; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            box-sizing: border-box; transition: 0.3s;
+        }
+        nav.scrolled { background: #000; border-bottom: 0.5px solid var(--border); }
+        
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .nav-right { margin-left: auto; display: flex; gap: 15px; }
+
+        .logo { font-weight: 900; font-size: 24px; color: var(--ntx-red); letter-spacing: -1.5px; text-decoration: none; }
+        .admin-tag { 
+            background: var(--ntx-red); color: white; font-size: 10px; font-weight: 800; 
+            padding: 2px 8px; border-radius: 4px; cursor: pointer; text-transform: uppercase;
+        }
+
+        /* --- LECTEUR 8K AVEC GLOW --- */
+        .main-stage { max-width: 1400px; margin: 0 auto; padding: 80px 4% 20px; position: relative; }
+        
+        /* L'effet de lueur derrière le lecteur */
+        .player-glow-wrap { position: relative; border-radius: 12px; box-shadow: 0 0 40px rgba(229, 9, 20, 0.2); }
+        .player-glow-wrap::before {
+            content: ''; position: absolute; inset: -10px; 
+            background: var(--ntx-red); filter: blur(60px); opacity: 0.15; z-index: -1;
+        }
+
+        .player-box {
+            position: relative; width: 100%; aspect-ratio: 16/9;
+            background: #000; border-radius: 8px; overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* --- BARRE QUALITÉ & EPG --- */
+        .smart-bar {
+            margin-top: 15px; background: var(--glass); border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px 20px; display: flex;
+            justify-content: space-between; align-items: center; cursor: pointer;
+        }
+        .quality-tags { display: flex; gap: 8px; }
+        .q-pill { font-size: 9px; font-weight: 900; color: #666; border: 1px solid #333; padding: 2px 6px; border-radius: 3px; }
+        .q-pill.active { color: var(--ntx-red); border-color: var(--ntx-red); }
+
+        /* --- CATALOGUE --- */
+        .row-title { font-size: 18px; font-weight: 700; margin: 35px 4% 15px; color: #efefef; }
+        .scroll-row { display: flex; gap: 12px; overflow-x: auto; padding: 0 4% 20px; scrollbar-width: none; }
+        .scroll-row::-webkit-scrollbar { display: none; }
+        
+        .card {
+            min-width: 200px; aspect-ratio: 16/9; background: #111;
+            border-radius: 4px; border: 1px solid var(--border);
+            transition: transform 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+            cursor: pointer; position: relative;
+        }
+        .card:hover { transform: scale(1.08); z-index: 10; border-color: #fff; }
+        .card img { width: 100%; height: 100%; object-fit: contain; padding: 15px; box-sizing: border-box; }
+
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            .nav-left { gap: 10px; }
+            .logo { font-size: 20px; }
+            .main-stage { padding-top: 70px; }
+            .card { min-width: 150px; }
+            .row-title { font-size: 15px; margin-top: 20px; }
+        }
+
+        /* SPINNER */
+        .loader {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--ntx-red); border-radius: 50%;
+            animation: spin 0.8s linear infinite; display: none;
+        }
+        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        /* ADMIN PANEL */
+        .panel { display: none; padding: 100px 5% 40px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="profile-selector">
-    <h1 style="color:var(--neon-red)">BJVidéo</h1>
-    <div id="profile-list" style="display:flex; gap:20px;"></div>
+<div id="login-page">
+    <div class="login-card">
+        <div class="logo">NTX</div>
+        <p style="font-size: 10px; color: #555; margin-bottom: 30px; letter-spacing: 2px;">BY BRICE JCT | 8K READY</p>
+        <input type="text" id="u" placeholder="Utilisateur" style="width:100%; padding:14px; background:#222; border:none; color:#fff; border-radius:4px; margin-bottom:12px;">
+        <input type="password" id="p" placeholder="Mot de passe" style="width:100%; padding:14px; background:#222; border:none; color:#fff; border-radius:4px; margin-bottom:20px;">
+        <button onclick="login()" style="width:100%; padding:14px; background:var(--ntx-red); color:#fff; border:none; border-radius:4px; font-weight:800; cursor:pointer;">SE CONNECTER</button>
+    </div>
 </div>
 
-<nav>
-    <a href="#" class="logo" onclick="location.reload()">BJVidéo</a>
-    <div class="nav-menu">
-        <button class="nav-btn" onclick="showPage('home')">🏠</button>
-        <button class="nav-btn" onclick="showPage('account')">👤</button>
-        <button id="admin-link" class="nav-btn" style="display:none;" onclick="showPage('admin')">⚙️ Admin</button>
+<nav id="navbar" style="display:none;">
+    <div class="nav-left">
+        <a href="#" class="logo" onclick="location.reload()">NTX</a>
+        <div id="adm-btn" class="admin-tag" style="display:none;" onclick="showPage('admin')">Admin</div>
+    </div>
+    <div class="nav-right">
+        <span onclick="showPage('home')" style="cursor:pointer; font-size: 13px;">Accueil</span>
+        <span onclick="logout()" style="cursor:pointer; font-size: 13px; color: #888;">Quitter</span>
     </div>
 </nav>
 
-<div id="page-home">
-    <div id="player-wrap" class="player-container mode-full">
-        <button class="toggle-view" onclick="toggleView()">🖥️</button>
-        <video id="video-player" controls playsinline></video>
-    </div>
-
-    <input type="text" id="search" class="search-box" placeholder="Rechercher une chaîne ou un film..." onkeyup="render()">
-
-    <div class="filter-bar" id="folder-filters">
+<div id="page-home" style="display:none;">
+    <div class="main-stage">
+        <div class="player-glow-wrap">
+            <div class="player-box">
+                <div id="loader" class="loader"></div>
+                <video id="video" controls playsinline></video>
+            </div>
         </div>
 
-    <div id="main-content" class="content-section">
+        <div class="smart-bar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span id="ch-active" style="font-weight:700; font-size:14px;">Sélectionnez un flux</span>
+                <div class="quality-tags">
+                    <span class="q-pill" id="pill-4k">4K</span>
+                    <span class="q-pill" id="pill-1080">1080P</span>
+                    <span class="q-pill active">AUTO</span>
+                </div>
+            </div>
+            <span id="clock" style="font-size:13px; font-weight:600; color:#888;">--:--</span>
         </div>
-</div>
-
-<div id="page-account" class="panel">
-    <div class="box">
-        <h3>Mon Compte</h3>
-        <p id="user-info"></p>
-        <input type="password" id="new-p" placeholder="Nouveau mot de passe">
-        <button class="nav-btn" style="width:100%" onclick="updateP()">Enregistrer</button>
     </div>
+
+    <div id="rows"></div>
 </div>
 
 <div id="page-admin" class="panel">
-    <div class="box" style="border-color: var(--neon-red);">
-        <h3>📁 Gestion des Dossiers (Bouquets)</h3>
-        <input type="text" id="folder-name" placeholder="Nom du dossier (ex: CANAL+)">
-        <button class="nav-btn" onclick="addFolder()">Créer le dossier</button>
-        <div id="admin-folders" style="margin-top:10px;"></div>
-    </div>
-
-    <div class="box">
-        <h3>📺 Ajouter une Chaîne / Film</h3>
-        <input type="text" id="c-name" placeholder="Nom">
-        <input type="text" id="c-url" placeholder="Lien flux (m3u8)">
-        <input type="text" id="c-logo" placeholder="URL Logo">
-        <select id="c-folder"></select>
-        <select id="c-type">
-            <option value="tv">TV en Direct</option>
-            <option value="movie">Film</option>
-            <option value="serie">Série</option>
-            <option value="music">Musique</option>
+    <h2 style="border-left: 4px solid var(--ntx-red); padding-left: 15px;">Configuration Serveur</h2>
+    <div style="background:#111; padding:20px; border-radius:8px; margin-top:20px;">
+        <input type="text" id="c-name" placeholder="Nom" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333;">
+        <input type="text" id="c-url" placeholder="URL m3u8" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333;">
+        <select id="c-folder" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #333;">
+            <option value="TNT">TNT</option>
+            <option value="CANAL+">CANAL+</option>
+            <option value="BEIN">BEIN SPORT</option>
+            <option value="FILMS">FILMS</option>
         </select>
-        <button class="nav-btn" style="width:100%" onclick="addChannel()">Ajouter au catalogue</button>
-    </div>
-
-    <div class="box">
-        <h3>📑 Organiser le Catalogue</h3>
-        <div id="admin-channels-list"></div>
+        <button onclick="addChan()" style="padding:10px 20px; background:var(--ntx-red); color:#fff; border:none; border-radius:4px; font-weight:700;">AJOUTER AU CATALOGUE</button>
     </div>
 </div>
 
 <script>
-    const defAccs = [
-        { name: 'Admin', mdp: 'Treza670', role: 'admin', color: '#ff0000' },
-        { name: 'Gauthier', mdp: 'gauthierrauch67', role: 'user', color: '#2ecc71' }
-    ];
+    const hls = new Hls({ capLevelToPlayerSize: true });
+    const video = document.getElementById('video');
+    const loader = document.getElementById('loader');
+    let timer = 0;
 
-    let db_accs = JSON.parse(localStorage.getItem('bj_accs')) || defAccs;
-    let db_lib = JSON.parse(localStorage.getItem('bj_lib')) || [];
-    let db_folders = JSON.parse(localStorage.getItem('bj_folders')) || ["TNT", "FILMS", "SÉRIES"];
-    let user = null;
-    const player = document.getElementById('video-player');
-    const hls = new Hls();
+    function login() {
+        const u = document.getElementById('u').value;
+        const p = document.getElementById('p').value;
+        // Tes comptes originaux
+        if((u === 'Admin' && p === 'Treza670') || u === 'Gauthier') {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('navbar').style.display = 'flex';
+            document.getElementById('page-home').style.display = 'block';
+            if(u === 'Admin') document.getElementById('adm-btn').style.display = 'block';
+            render();
+            startTime();
+            // Reconnexion 1h
+            setTimeout(() => { alert("Session expirée."); location.reload(); }, 3600000);
+        } else { alert("Identifiants incorrects."); }
+    }
 
-    function init() {
-        const list = document.getElementById('profile-list');
-        db_accs.forEach((a, i) => {
-            list.innerHTML += `<div onclick="login(${i})" style="cursor:pointer; text-align:center;"><div style="width:80px;height:80px;border-radius:50%;background:${a.color};display:flex;align-items:center;justify-content:center;font-size:30px;">${a.name[0]}</div><p>${a.name}</p></div>`;
+    function play(url, name) {
+        timer = Date.now();
+        loader.style.display = 'block';
+        document.getElementById('ch-active').innerText = name;
+        
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.play();
+        });
+
+        video.onplaying = () => {
+            loader.style.display = 'none';
+            const diff = (Date.now() - timer) / 1000;
+            // SMART QUALITY : Si > 2.5s on descend
+            if(diff > 2.5) {
+                console.log("Switch 720p (Vitesse: " + diff + "s)");
+                const lvl = hls.levels.findIndex(l => l.height <= 720);
+                if(lvl !== -1) hls.currentLevel = lvl;
+            } else {
+                document.getElementById('pill-1080').classList.add('active');
+            }
+        };
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function render() {
+        const rowCont = document.getElementById('rows');
+        const lib = JSON.parse(localStorage.getItem('ntx_lib')) || [];
+        const folders = ["TNT", "CANAL+", "BEIN", "FILMS"];
+        
+        rowCont.innerHTML = '';
+        folders.forEach(f => {
+            const items = lib.filter(i => i.folder === f);
+            if(items.length > 0) {
+                let html = `<div class="row-title">${f}</div><div class="scroll-row">`;
+                items.forEach(it => {
+                    html += `<div class="card" onclick="play('${it.url}', '${it.name}')">
+                        <img src="${it.logo || 'https://via.placeholder.com/200x112/111/fff?text=NTX'}">
+                    </div>`;
+                });
+                html += `</div>`;
+                rowCont.innerHTML += html;
+            }
         });
     }
 
-    function login(i) {
-        let p = prompt("MDP :");
-        if(p === db_accs[i].mdp) {
-            user = db_accs[i];
-            document.getElementById('profile-selector').style.display = 'none';
-            if(user.role === 'admin') document.getElementById('admin-link').style.display = 'block';
-            document.getElementById('user-info').innerText = "Bonjour, " + user.name;
-            updateFolderSelect();
+    function addChan() {
+        const n = document.getElementById('c-name').value;
+        const u = document.getElementById('c-url').value;
+        const f = document.getElementById('c-folder').value;
+        if(n && u) {
+            let lib = JSON.parse(localStorage.getItem('ntx_lib')) || [];
+            lib.push({name:n, url:u, folder:f});
+            localStorage.setItem('ntx_lib', JSON.stringify(lib));
+            alert("Ajouté !");
             render();
         }
     }
 
-    // GESTION LECTEUR
-    function toggleView() {
-        const wrap = document.getElementById('player-wrap');
-        wrap.classList.toggle('mode-mini');
-        wrap.classList.toggle('mode-full');
-    }
-
-    function play(url) {
-        if(url.includes('.m3u8')) {
-            hls.loadSource(url); hls.attachMedia(player); player.play();
-        } else { player.src = url; player.play(); }
-    }
-
-    // ADMIN ACTIONS
-    function addFolder() {
-        let n = document.getElementById('folder-name').value;
-        if(n) { db_folders.push(n.toUpperCase()); save(); updateFolderSelect(); render(); }
-    }
-
-    function updateFolderSelect() {
-        const sel = document.getElementById('c-folder');
-        const adminF = document.getElementById('admin-folders');
-        sel.innerHTML = ''; adminF.innerHTML = '';
-        db_folders.forEach((f, i) => {
-            sel.innerHTML += `<option value="${f}">${f}</option>`;
-            adminF.innerHTML += `<div class="admin-item">${f} <button onclick="delFolder(${i})" style="color:red;background:none;border:none;">X</button></div>`;
-        });
-    }
-
-    function addChannel() {
-        let n = document.getElementById('c-name').value;
-        let u = document.getElementById('c-url').value;
-        let l = document.getElementById('c-logo').value;
-        let f = document.getElementById('c-folder').value;
-        let t = document.getElementById('c-type').value;
-        if(n && u) {
-            db_lib.push({name:n, url:u, logo:l, folder:f, type:t});
-            save(); render();
-        }
-    }
-
-    // TRI MANUEL
-    function move(index, dir) {
-        if(dir === 'up' && index > 0) [db_lib[index], db_lib[index-1]] = [db_lib[index-1], db_lib[index]];
-        if(dir === 'down' && index < db_lib.length-1) [db_lib[index], db_lib[index+1]] = [db_lib[index+1], db_lib[index]];
-        save(); render();
-    }
-
-    function delChan(i) { if(confirm("Supprimer ?")) { db_lib.splice(i, 1); save(); render(); } }
-    function delFolder(i) { db_folders.splice(i,1); save(); updateFolderSelect(); render(); }
-
-    function save() {
-        localStorage.setItem('bj_accs', JSON.stringify(db_accs));
-        localStorage.setItem('bj_lib', JSON.stringify(db_lib));
-        localStorage.setItem('bj_folders', JSON.stringify(db_folders));
-    }
-
-    // RENDU ACCUEIL
-    function render() {
-        const main = document.getElementById('main-content');
-        const filters = document.getElementById('folder-filters');
-        const search = document.getElementById('search').value.toLowerCase();
-        const adminList = document.getElementById('admin-channels-list');
-        
-        main.innerHTML = ''; filters.innerHTML = '<button class="cat-btn" onclick="scrollToGroup(\'all\')">TOUT</button>';
-        adminList.innerHTML = '';
-
-        db_folders.forEach(folder => {
-            const filtered = db_lib.filter(c => c.folder === folder && c.name.toLowerCase().includes(search));
-            if(filtered.length > 0) {
-                filters.innerHTML += `<button class="cat-btn" onclick="scrollToGroup('${folder}')">${folder}</button>`;
-                let section = `<div id="sec-${folder}"><h2 class="group-title">${folder}</h2><div class="grid">`;
-                filtered.forEach(c => {
-                    section += `<div class="card" onclick="play('${c.url}')"><img src="${c.logo}"><p>${c.name}</p></div>`;
-                });
-                section += `</div></div>`;
-                main.innerHTML += section;
-            }
-        });
-
-        // Liste admin pour tri
-        db_lib.forEach((c, i) => {
-            adminList.innerHTML += `<div class="admin-item">
-                <span>[${c.folder}] ${c.name}</span>
-                <div>
-                    <button class="btn-move" onclick="move(${i}, 'up')">▲</button>
-                    <button class="btn-move" onclick="move(${i}, 'down')">▼</button>
-                    <button onclick="delChan(${i})" style="color:red;background:none;border:none;margin-left:10px;">X</button>
-                </div>
-            </div>`;
-        });
-    }
-
-    function scrollToGroup(id) {
-        if(id === 'all') window.scrollTo({top: 400, behavior: 'smooth'});
-        else document.getElementById('sec-'+id).scrollIntoView({behavior: 'smooth', block: 'center'});
-    }
-
     function showPage(id) {
-        document.getElementById('page-home').style.display = (id === 'home') ? 'block' : 'none';
-        document.getElementById('page-account').style.display = (id === 'account') ? 'block' : 'none';
-        document.getElementById('page-admin').style.display = (id === 'admin') ? 'block' : 'none';
+        document.getElementById('page-home').style.display = (id === 'home' ? 'block' : 'none');
+        document.getElementById('page-admin').style.display = (id === 'admin' ? 'block' : 'none');
     }
 
-    function updateP() {
-        let p = document.getElementById('new-p').value;
-        if(p) { user.mdp = p; save(); alert("Fait"); }
+    function startTime() {
+        setInterval(() => {
+            const n = new Date();
+            document.getElementById('clock').innerText = n.getHours() + ":" + String(n.getMinutes()).padStart(2, '0');
+        }, 1000);
     }
 
-    init();
+    function logout() { location.reload(); }
+
+    window.onscroll = () => {
+        if(window.scrollY > 20) document.getElementById('navbar').classList.add('scrolled');
+        else document.getElementById('navbar').classList.remove('scrolled');
+    };
 </script>
 </body>
 </html>
