@@ -2,272 +2,265 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV_NTX | High-End Stream</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BJVidéo - Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --ntx-red: #e50914; --bg: #000; --card: #121212; --border: rgba(255,255,255,0.08); }
+        :root {
+            --neon-red: #ff0000;
+            --netflix-red: #E50914;
+            --bg-black: #080808;
+            --card-bg: #141414;
+            --nav-height: 70px;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-black);
+            color: white; margin: 0; overflow-x: hidden;
+        }
+
+        /* --- SÉLECTEUR DE PROFIL --- */
+        #profile-selector {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .profile-grid { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .profile-card { text-align: center; cursor: pointer; width: 140px; transition: 0.3s; }
+        .profile-card:hover { transform: scale(1.1); }
+        .avatar { 
+            width: 120px; height: 120px; border-radius: 4px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+            background: #333; border: 3px solid transparent;
+        }
+        .profile-card:hover .avatar { border-color: white; }
+
+        /* --- NAVIGATION NÉON --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: var(--nav-height);
+            display: flex; align-items: center; padding: 0 4%; box-sizing: border-box;
+            background: rgba(0,0,0,0.9); z-index: 2000; border-bottom: 1px solid rgba(255,0,0,0.2);
+        }
+        .logo { color: var(--neon-red); font-size: 28px; font-weight: bold; text-decoration: none; text-shadow: 0 0 10px var(--neon-red); margin-right: 40px; }
+        .nav-links { display: flex; gap: 15px; flex-grow: 1; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { 
-            margin: 0; padding: 0; background: var(--bg); color: #fff; 
-            font-family: 'Inter', sans-serif; overflow-x: hidden; width: 100%;
+        /* Boutons Néon */
+        .btn-neon {
+            background: transparent; border: 2px solid var(--neon-red); color: white;
+            padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;
+            transition: 0.3s; text-transform: uppercase; font-size: 12px;
         }
+        .btn-neon:hover { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
 
-        /* NAVIGATION FIXE */
-        nav { 
-            position: fixed; top: 0; width: 100%; height: 65px; 
-            display: flex; align-items: center; padding: 0 5%; 
-            z-index: 1000; background: rgba(0,0,0,0.9); 
-            border-bottom: 1px solid var(--border); backdrop-filter: blur(10px);
+        /* --- HERO & LECTEUR --- */
+        .hero { 
+            height: 60vh; width: 100%; position: relative;
+            background: linear-gradient(to bottom, transparent, var(--bg-black)), 
+                        url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover; background-position: center; filter: brightness(0.4) blur(2px);
         }
-        .logo { font-weight: 900; font-size: 24px; color: var(--ntx-red); letter-spacing: -1.5px; }
-        .nav-links { margin-left: auto; display: flex; gap: 20px; }
-        .nav-link { font-size: 13px; font-weight: 700; cursor: pointer; color: #888; text-transform: uppercase; transition: 0.3s; }
-        .nav-link.active { color: #fff; }
-        .nav-link-adm { color: var(--ntx-red) !important; border: 1px solid var(--ntx-red); padding: 4px 10px; border-radius: 4px; }
-
-        /* CONTENEUR PRINCIPAL */
-        .main-content { max-width: 1400px; margin: 0 auto; padding: 85px 5% 40px; }
-
-        /* LECTEUR VIDEO */
-        .player-section { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        video { width: 100%; height: 100%; display: block; }
-        .now-playing { margin-top: 15px; font-weight: 700; color: var(--ntx-red); font-size: 14px; text-transform: uppercase; }
-
-        /* FILTRE CATEGORIES */
-        .filter-wrap { margin: 25px 0; }
-        .cat-select { 
-            background: #111; color: #fff; border: 1px solid #333; padding: 12px 20px; 
-            border-radius: 8px; width: 100%; max-width: 320px; font-weight: 600; cursor: pointer; outline: none;
+        .video-container {
+            max-width: 1000px; margin: -30vh auto 40px; position: relative; z-index: 100;
+            background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
+        video { width: 100%; aspect-ratio: 16/9; display: block; }
 
-        /* GRILLE DE CHAINES */
-        .row-title { font-size: 20px; font-weight: 800; margin: 35px 0 15px; text-transform: uppercase; letter-spacing: 0.5px; border-left: 4px solid var(--ntx-red); padding-left: 12px; }
-        .row-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
-        .row-scroll::-webkit-scrollbar { display: none; }
-        .card { 
-            min-width: 220px; width: 220px; aspect-ratio: 16/9; background: var(--card); 
-            border: 1px solid var(--border); border-radius: 8px; cursor: pointer; 
-            transition: transform 0.3s, border-color 0.3s; overflow: hidden; position: relative;
+        /* --- GRILLE STYLE MOLOTOV --- */
+        .row { padding: 0 4% 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .item-card {
+            background: #111; border-radius: 6px; overflow: hidden; cursor: pointer;
+            transition: 0.3s; border: 1px solid #222;
         }
-        .card:hover { transform: scale(1.04); border-color: var(--ntx-red); }
-        .card img { width: 100%; height: 100%; object-fit: contain; padding: 15px; }
+        .item-card:hover { border-color: var(--neon-red); transform: translateY(-5px); }
+        .img-container { 
+            width: 100%; height: 110px; background: #000; 
+            display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;
+        }
+        .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .item-title { padding: 10px; font-size: 13px; text-align: center; font-weight: bold; background: #181818; }
 
-        /* PANNEAU ADMIN */
-        .admin-page { display: none; padding: 85px 5% 50px; max-width: 900px; margin: 0 auto; }
-        .box { background: #0a0a0a; padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
-        .box h3 { margin-top: 0; color: #fff; font-size: 18px; margin-bottom: 20px; }
-        
-        .ntx-input { 
-            width: 100%; padding: 14px; background: #111; border: 1px solid #333; 
-            color: #fff; border-radius: 8px; margin-bottom: 12px; font-size: 15px; outline: none;
-        }
-        .ntx-btn { 
-            width: 100%; padding: 15px; background: var(--ntx-red); color: #fff; 
-            border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase;
-        }
+        /* --- PANNEAUX (ADMIN & COMPTE) --- */
+        .panel { display: none; padding: 100px 4% 40px; max-width: 800px; margin: 0 auto; }
+        .box { background: #141414; padding: 30px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
+        .save-btn { background: var(--neon-red); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; margin-top: 10px; }
 
-        /* LISTES ADMIN */
-        .adm-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px; border-bottom: 1px solid #1a1a1a; gap: 10px; font-size: 14px;
-        }
-        .adm-actions { display: flex; gap: 5px; }
-        .btn-mini { padding: 6px 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; cursor: pointer; }
-        .btn-del { color: #ff4444; border-color: #522; }
-
-        /* RESPONSIVE TELEPHONE */
-        @media (max-width: 768px) {
-            .card { min-width: 160px; width: 160px; }
-            .row-title { font-size: 17px; }
-            .nav-link { font-size: 11px; }
-            .adm-item { flex-direction: column; align-items: flex-start; }
-            .adm-actions { width: 100%; justify-content: flex-end; }
-        }
     </style>
 </head>
 <body>
 
+<div id="profile-selector">
+    <h1 style="margin-bottom: 50px;">Qui regarde BJVidéo ?</h1>
+    <div id="profile-list" class="profile-grid"></div>
+</div>
+
 <nav>
-    <div class="logo">TV_NTX</div>
+    <a href="#" onclick="location.reload()" class="logo">BJVidéo</a>
     <div class="nav-links">
-        <span class="nav-link active" id="tab-home" onclick="showSection('home')">Accueil</span>
-        <span class="nav-link nav-link-adm" id="tab-admin" onclick="showSection('admin')">Admin</span>
+        <button class="btn-neon" onclick="showPage('home')">Accueil</button>
+        <button class="btn-neon" onclick="showPage('account')">Mon Compte</button>
+        <button id="admin-btn" class="btn-neon" style="display:none;" onclick="showPage('admin')">Configuration Site</button>
     </div>
 </nav>
 
-<div id="sec-home" class="main-content">
-    <div class="player-section">
-        <video id="player" controls playsinline></video>
-    </div>
-    <div id="playing-title" class="now-playing">Aucune chaîne en cours</div>
-
-    <div class="filter-wrap">
-        <select id="cat-filter" class="cat-select" onchange="renderHome()">
-            </select>
+<div id="page-home" class="content-page" style="display:block;">
+    <div class="hero"></div>
+    <div class="video-container">
+        <video id="main-player" controls autoplay></video>
+        <h3 id="now-playing" style="text-align: center; color: var(--neon-red); padding: 10px;">Sélectionnez un contenu</h3>
     </div>
 
-    <div id="mount-point"></div>
+    <div class="row"><h2>📺 Chaînes TV</h2><div id="grid-tv" class="grid"></div></div>
+    <div class="row"><h2>🎬 Films & Séries</h2><div id="grid-movie" class="grid"></div></div>
+    <div class="row"><h2>📻 Radios</h2><div id="grid-radio" class="grid"></div></div>
 </div>
 
-<div id="sec-admin" class="admin-page">
+<div id="page-account" class="panel">
     <div class="box">
-        <h3>Créer un Dossier (Catégorie)</h3>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="in-cat-name" class="ntx-input" style="margin:0" placeholder="Ex: Sport, Cinéma...">
-            <button class="ntx-btn" style="width:120px" onclick="addCategory()">Créer</button>
-        </div>
-        <div id="list-cats" style="margin-top:15px;"></div>
+        <h2>Paramètres de mon compte</h2>
+        <p>Utilisateur : <strong id="display-user"></strong></p>
+        <input type="password" id="new-mdp" placeholder="Nouveau mot de passe">
+        <button class="save-btn" onclick="updatePassword()">SAUVEGARDER MON MOT DE PASSE</button>
     </div>
+</div>
 
+<div id="page-admin" class="panel">
     <div class="box">
-        <h3>Ajouter une Chaîne</h3>
-        <input type="text" id="in-ch-name" class="ntx-input" placeholder="Nom de la chaîne">
-        <input type="text" id="in-ch-url" class="ntx-input" placeholder="Lien Flux (m3u8)">
-        <input type="text" id="in-ch-logo" class="ntx-input" placeholder="Lien Logo PNG (Optionnel)">
-        <select id="in-ch-cat" class="ntx-input"></select>
-        <button class="ntx-btn" onclick="addChannel()">Ajouter au catalogue</button>
-        <div id="list-chans" style="margin-top:20px;"></div>
+        <h2 style="color:var(--neon-red)">Configuration du Site (Admin Uniquement)</h2>
+        <input type="text" id="add-name" placeholder="Nom">
+        <input type="text" id="add-url" placeholder="Lien du flux (m3u8, mp4...)">
+        <input type="text" id="add-logo" placeholder="URL du logo (PNG/JPG)">
+        <select id="add-type">
+            <option value="tv">Chaîne TV</option>
+            <option value="movie">Film / Série</option>
+            <option value="radio">Radio</option>
+        </select>
+        <button class="save-btn" onclick="addContent()">AJOUTER AU CATALOGUE</button>
     </div>
+    <div class="box" id="admin-manage-list"></div>
 </div>
 
 <script>
-    // STOCKAGE LOCAL
-    let categories = JSON.parse(localStorage.getItem('ntx_cats')) || ["TNT", "FILMS"];
-    let channels = JSON.parse(localStorage.getItem('ntx_chans')) || [];
+    // 1. Initialisation des comptes et de la base
+    const defaultAccounts = [
+        { name: 'Admin', mdp: 'Treza670', role: 'admin', color: '#ff0000' },
+        { name: 'Smart100', mdp: 'Smart100', role: 'user', color: '#2b90d9' },
+        { name: 'Herce', mdp: 'Schiltigheim67*', role: 'user', color: '#e50914' },
+        { name: 'Marie Christine', mdp: 'Schiltigheim67*', role: 'user', color: '#b926d5' },
+        { name: 'Gauthier', mdp: 'gauthierrauch67', role: 'user', color: '#2ecc71' }
+    ];
 
-    // INITIALISATION
-    window.onload = () => {
-        refreshUI();
-    };
+    let accounts = JSON.parse(localStorage.getItem('bjvideo_accounts')) || defaultAccounts;
+    let library = JSON.parse(localStorage.getItem('bjvideo_library')) || [];
+    let currentUser = null;
+    
+    const player = document.getElementById('main-player');
+    const hls = new Hls();
 
-    function refreshUI() {
-        renderHomeSelect();
-        renderHome();
-        renderAdminCats();
-        renderAdminChans();
+    // 2. Gestion des profils
+    function initProfiles() {
+        const list = document.getElementById('profile-list');
+        list.innerHTML = '';
+        accounts.forEach((acc, idx) => {
+            list.innerHTML += `
+                <div class="profile-card" onclick="login(${idx})">
+                    <div class="avatar" style="background:${acc.color}">${acc.name[0]}</div>
+                    <p>${acc.name}</p>
+                </div>`;
+        });
     }
 
-    // --- ACCUEIL ---
-    function renderHomeSelect() {
-        const sel = document.getElementById('cat-filter');
-        sel.innerHTML = '<option value="ALL">TOUTES LES CATÉGORIES</option>';
-        categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+    function login(idx) {
+        const pass = prompt(`Mot de passe pour ${accounts[idx].name} :`);
+        if (pass === accounts[idx].mdp) {
+            currentUser = accounts[idx];
+            document.getElementById('profile-selector').style.display = 'none';
+            document.getElementById('display-user').innerText = currentUser.name;
+            if (currentUser.role === 'admin') document.getElementById('admin-btn').style.display = 'block';
+            render();
+        } else {
+            alert("Mot de passe incorrect !");
+        }
     }
 
-    function renderHome() {
-        const mount = document.getElementById('mount-point');
-        const filter = document.getElementById('cat-filter').value;
-        mount.innerHTML = '';
+    // 3. Navigation
+    function showPage(id) {
+        document.querySelectorAll('.content-page, .panel').forEach(p => p.style.display = 'none');
+        document.getElementById('page-' + id).style.display = 'block';
+        window.scrollTo(0,0);
+    }
 
-        const activeCats = filter === 'ALL' ? categories : [filter];
+    // 4. Gestion MDP
+    function updatePassword() {
+        const newPass = document.getElementById('new-mdp').value;
+        if(newPass) {
+            currentUser.mdp = newPass;
+            localStorage.setItem('bjvideo_accounts', JSON.stringify(accounts));
+            alert("Mot de passe mis à jour et sauvegardé !");
+            document.getElementById('new-mdp').value = '';
+        }
+    }
 
-        activeCats.forEach(cat => {
-            const chs = channels.filter(x => x.cat === cat);
-            if(chs.length > 0) {
-                let html = `<div class="row-title">${cat}</div><div class="row-scroll">`;
-                chs.forEach(ch => {
-                    html += `<div class="card" onclick="play('${ch.url}', '${ch.name}')">
-                        <img src="${ch.logo || 'https://via.placeholder.com/300x168/111/333?text='+ch.name}">
-                    </div>`;
-                });
-                html += `</div>`;
-                mount.innerHTML += html;
+    // 5. Gestion Catalogue
+    function addContent() {
+        const name = document.getElementById('add-name').value;
+        const url = document.getElementById('add-url').value;
+        const logo = document.getElementById('add-logo').value;
+        const type = document.getElementById('add-type').value;
+
+        if(name && url) {
+            library.push({ name, url, logo, type });
+            localStorage.setItem('bjvideo_library', JSON.stringify(library));
+            render();
+            alert("Ajouté et sauvegardé !");
+        }
+    }
+
+    function deleteItem(idx) {
+        if(confirm("Supprimer ?")) {
+            library.splice(idx, 1);
+            localStorage.setItem('bjvideo_library', JSON.stringify(library));
+            render();
+        }
+    }
+
+    function play(url, name) {
+        document.getElementById('now-playing').innerText = "Lecture : " + name;
+        if (url.includes('.m3u8')) {
+            if (Hls.isSupported()) { hls.loadSource(url); hls.attachMedia(player); }
+        } else { player.src = url; }
+        player.play();
+        window.scrollTo({top: 200, behavior: 'smooth'});
+    }
+
+    // 6. Rendu
+    function render() {
+        const grids = { tv: document.getElementById('grid-tv'), movie: document.getElementById('grid-movie'), radio: document.getElementById('grid-radio') };
+        const adminList = document.getElementById('admin-manage-list');
+        Object.values(grids).forEach(g => g.innerHTML = '');
+        adminList.innerHTML = '<h3>Liste actuelle :</h3>';
+
+        library.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div class="img-container"><img src="${item.logo || 'https://via.placeholder.com/150'}"></div>
+                <div class="item-title">${item.name}</div>
+            `;
+            card.onclick = () => play(item.url, item.name);
+            if(grids[item.type]) grids[item.type].appendChild(card);
+
+            if(currentUser.role === 'admin') {
+                adminList.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
+                    <span>${item.name}</span> <button onclick="deleteItem(${idx})" style="color:red; background:none; border:none; cursor:pointer">X</button>
+                </div>`;
             }
         });
     }
 
-    const hls = new Hls();
-    function play(url, name) {
-        const video = document.getElementById('player');
-        document.getElementById('playing-title').innerText = "DIRECT : " + name;
-        if (Hls.isSupported()) {
-            hls.loadSource(url);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = url;
-            video.play();
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // --- ADMIN ---
-    function addCategory() {
-        const val = document.getElementById('in-cat-name').value.trim();
-        if(val && !categories.includes(val)) {
-            categories.push(val);
-            saveAndRefresh();
-            document.getElementById('in-cat-name').value = '';
-        }
-    }
-
-    function addChannel() {
-        const name = document.getElementById('in-ch-name').value.trim();
-        const url = document.getElementById('in-ch-url').value.trim();
-        const logo = document.getElementById('in-ch-logo').value.trim();
-        const cat = document.getElementById('in-ch-cat').value;
-        if(name && url) {
-            channels.push({ name, url, logo, cat });
-            saveAndRefresh();
-            document.getElementById('in-ch-name').value = '';
-            document.getElementById('in-ch-url').value = '';
-        }
-    }
-
-    function renderAdminCats() {
-        const list = document.getElementById('list-cats');
-        list.innerHTML = '';
-        categories.forEach((c, i) => {
-            list.innerHTML += `<div class="adm-item"><span>${c}</span>
-            <button class="btn-mini btn-del" onclick="removeCat(${i})">Supprimer</button></div>`;
-        });
-        // Sync select
-        const sel = document.getElementById('in-ch-cat');
-        sel.innerHTML = '';
-        categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-    }
-
-    function renderAdminChans() {
-        const list = document.getElementById('list-chans');
-        list.innerHTML = '<h4>Gérer mes chaînes :</h4>';
-        channels.forEach((ch, i) => {
-            list.innerHTML += `<div class="adm-item">
-                <span><b>[${ch.cat}]</b> ${ch.name}</span>
-                <div class="adm-actions">
-                    <button class="btn-mini" onclick="moveCh(${i}, -1)">↑</button>
-                    <button class="btn-mini" onclick="moveCh(${i}, 1)">↓</button>
-                    <button class="btn-mini btn-del" onclick="removeCh(${i})">X</button>
-                </div>
-            </div>`;
-        });
-    }
-
-    function removeCat(i) { categories.splice(i, 1); saveAndRefresh(); }
-    function removeCh(i) { channels.splice(i, 1); saveAndRefresh(); }
-    function moveCh(idx, dir) {
-        let t = idx + dir;
-        if(t >= 0 && t < channels.length) {
-            [channels[idx], channels[t]] = [channels[t], channels[idx]];
-            saveAndRefresh();
-        }
-    }
-
-    function saveAndRefresh() {
-        localStorage.setItem('ntx_cats', JSON.stringify(categories));
-        localStorage.setItem('ntx_chans', JSON.stringify(channels));
-        refreshUI();
-    }
-
-    function showSection(id) {
-        document.getElementById('sec-home').style.display = (id === 'home' ? 'block' : 'none');
-        document.getElementById('sec-admin').style.display = (id === 'admin' ? 'block' : 'none');
-        document.getElementById('tab-home').classList.toggle('active', id === 'home');
-        document.getElementById('tab-admin').classList.toggle('active', id === 'admin');
-    }
+    initProfiles();
 </script>
-
 </body>
 </html>
