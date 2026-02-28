@@ -3,184 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV_NTX | 8K Ultra-Fluidité</title>
+    <title>TV_NTX | High-End Streaming</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --ntx-red: #e50914; --bg: #000; --border: rgba(255,255,255,0.08); }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background: var(--bg); color: #fff; font-family: 'Inter', sans-serif;
-            overflow-x: hidden; -webkit-font-smoothing: antialiased;
-        }
-
-        /* --- FOND CINÉMATIQUE ANIMÉ --- */
+        /* FOND ANIMÉ */
         .bg-animated { position: fixed; inset: 0; z-index: -1; background: #000; overflow: hidden; }
-        .film-strip { 
-            position: absolute; width: 180px; height: 300%; 
-            background: linear-gradient(to bottom, transparent, rgba(229, 9, 20, 0.05), transparent);
-            border-left: 1px solid rgba(255,255,255,0.02);
-            transform: rotate(20deg); top: -100%; animation: moveStrip 25s linear infinite;
-            transition: opacity 1s ease;
-        }
+        .film-strip { position: absolute; width: 180px; height: 300%; background: linear-gradient(to bottom, transparent, rgba(229, 9, 20, 0.05), transparent); transform: rotate(20deg); top: -100%; animation: moveStrip 25s linear infinite; opacity: 0.3; transition: opacity 1s; }
         @keyframes moveStrip { from { transform: rotate(20deg) translateY(0); } to { transform: rotate(20deg) translateY(33.3%); } }
 
-        /* --- OVERLAY CHARGEMENT --- */
-        #master-loader { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 20000;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            backdrop-filter: blur(15px); text-align: center;
-        }
-        .ring { 
-            width: 60px; height: 60px; border: 3px solid rgba(229,9,20,0.1); 
-            border-top: 3px solid var(--ntx-red); border-radius: 50%; 
-            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            box-shadow: 0 0 20px rgba(229,9,20,0.2);
-        }
+        /* LOADER */
+        #master-loader { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(15px); }
+        .ring { width: 50px; height: 50px; border: 3px solid rgba(229,9,20,0.1); border-top: 3px solid var(--ntx-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* --- CONNEXION --- */
-        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; }
-        .login-card { 
-            width: 90%; max-width: 400px; padding: 50px 40px; 
-            background: rgba(10,10,10,0.8); border: 1px solid var(--border); 
-            border-radius: 16px; backdrop-filter: blur(25px); text-align: center;
-        }
-        .logo-main { font-weight: 900; font-size: 45px; color: var(--ntx-red); letter-spacing: -3px; margin-bottom: 30px; }
+        /* CONNEXION */
+        #login-page { height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .login-card { width: 90%; max-width: 400px; padding: 40px; background: rgba(10,10,10,0.9); border: 1px solid var(--border); border-radius: 12px; backdrop-filter: blur(20px); text-align: center; }
+        .logo { font-weight: 900; font-size: 40px; color: var(--ntx-red); letter-spacing: -2px; margin-bottom: 30px; }
+        .ntx-input { width: 100%; padding: 15px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px; margin-bottom: 10px; box-sizing: border-box; }
+        .ntx-btn { width: 100%; padding: 15px; background: var(--ntx-red); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; }
 
-        .ntx-input { 
-            width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid #333; 
-            color: #fff; border-radius: 8px; font-size: 16px; margin-bottom: 15px; box-sizing: border-box;
-            transition: 0.3s;
-        }
-        .ntx-input:focus { border-color: var(--ntx-red); outline: none; background: rgba(255,255,255,0.08); }
-        .ntx-btn { 
-            width: 100%; padding: 18px; background: var(--ntx-red); color: #fff; 
-            border: none; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer;
-            transition: 0.2s;
-        }
-        .ntx-btn:hover { transform: scale(1.02); background: #ff0000; }
+        /* NAV */
+        nav { position: fixed; top: 0; width: 100%; height: 70px; display: none; align-items: center; padding: 0 4%; z-index: 10000; background: linear-gradient(to bottom, #000, transparent); }
+        .nav-link { margin-left: 20px; font-size: 13px; font-weight: 600; cursor: pointer; color: #aaa; }
 
-        /* --- INTERFACE PRINCIPALE --- */
-        nav { 
-            position: fixed; top: 0; width: 100%; height: 75px; display: none; 
-            align-items: center; padding: 0 5%; z-index: 5000; 
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); box-sizing: border-box; 
-        }
-        nav.scrolled { background: #000; border-bottom: 1px solid var(--border); }
+        /* UI */
+        .main-stage { max-width: 1400px; margin: 0 auto; padding: 90px 4% 20px; }
+        .player-box { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        video { width: 100%; height: 100%; image-rendering: -webkit-optimize-contrast; }
 
-        .main-stage { max-width: 1400px; margin: 0 auto; padding: 100px 5% 20px; }
-        .player-wrap { 
-            position: relative; border-radius: 12px; overflow: hidden; 
-            background: #000; border: 1px solid var(--border); aspect-ratio: 16/9;
-            box-shadow: 0 30px 100px rgba(0,0,0,0.8);
-        }
-        video { width: 100%; height: 100%; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); }
+        .row-title { font-size: 20px; font-weight: 700; margin: 30px 4% 15px; }
+        .row-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 0 4% 20px; scrollbar-width: none; opacity: 0; transform: translateY(10px); transition: 0.8s; }
+        .card { min-width: 240px; aspect-ratio: 16/9; background: #111; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+        .card img { width: 100%; height: 100%; object-fit: contain; padding: 15px; box-sizing: border-box; }
 
-        /* --- EPG BAR --- */
-        .epg-mini { 
-            background: rgba(15,15,15,0.8); border: 1px solid var(--border); border-top: none;
-            padding: 15px 25px; border-radius: 0 0 12px 12px; display: flex; 
-            justify-content: space-between; align-items: center; font-size: 14px;
-        }
-
-        /* --- CATALOGUE --- */
-        .row-title { font-size: 22px; font-weight: 800; margin: 40px 5% 15px; letter-spacing: -0.5px; }
-        .row-scroll { 
-            display: flex; gap: 15px; overflow-x: auto; padding: 0 5% 40px; 
-            scrollbar-width: none; opacity: 0; transform: translateY(20px); 
-        }
-        .row-scroll::-webkit-scrollbar { display: none; }
-        .card { 
-            min-width: 260px; aspect-ratio: 16/9; background: #111; border: 1px solid var(--border); 
-            border-radius: 8px; transition: 0.5s cubic-bezier(0.2, 1, 0.2, 1); cursor: pointer; overflow: hidden;
-        }
-        .card:hover { transform: scale(1.08); border-color: #fff; z-index: 100; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
-        .card img { width: 100%; height: 100%; object-fit: contain; padding: 20px; box-sizing: border-box; }
-
-        /* --- ADMIN --- */
-        .admin-page { display: none; padding: 120px 5% 50px; max-width: 900px; margin: 0 auto; }
-        .box { background: #0a0a0a; border: 1px solid #222; padding: 30px; border-radius: 12px; margin-bottom: 25px; }
-        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #1a1a1a; }
-
-        @media (max-width: 768px) {
-            .login-card { padding: 30px; }
-            .logo-main { font-size: 32px; }
-            .card { min-width: 170px; }
-            .row-title { font-size: 17px; }
-        }
+        .admin-panel { display: none; padding: 100px 4%; max-width: 900px; margin: 0 auto; }
+        .box { background: #0a0a0a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #222; }
     </style>
 </head>
 <body>
 
-    <div id="master-loader">
-        <div class="ring"></div>
-        <div id="loader-msg" style="margin-top: 25px; font-weight: 700; letter-spacing: 2px; font-size: 13px; color: var(--ntx-red);"></div>
+<div id="master-loader">
+    <div class="ring"></div>
+    <p id="loader-msg" style="margin-top: 20px; font-weight: 600; letter-spacing: 1px; color: var(--ntx-red);"></p>
+</div>
+
+<div class="bg-animated" id="bg-anim"></div>
+
+<div id="login-page">
+    <div class="login-card">
+        <div class="logo">TV_NTX</div>
+        <input type="text" id="l-user" class="ntx-input" placeholder="Identifiant">
+        <input type="password" id="l-pass" class="ntx-input" placeholder="Mot de passe">
+        <button class="ntx-btn" onclick="login()">CONNEXION</button>
+        <p style="font-size: 10px; color: #444; margin-top: 20px;">Accès sécurisé Brice jct</p>
     </div>
+</div>
 
-    <div class="bg-animated" id="bg-anim"></div>
+<nav id="navbar">
+    <div class="logo" style="font-size: 22px; margin: 0;">TV_NTX</div>
+    <div style="margin-left: auto; display: flex;">
+        <span class="nav-link" onclick="showUI('home')">Accueil</span>
+        <span class="nav-link" id="adm-link" style="display:none; color:var(--ntx-red);" onclick="showUI('admin')">ADMIN</span>
+        <span class="nav-link" onclick="location.reload()">Quitter</span>
+    </div>
+</nav>
 
-    <section id="login-page">
-        <div class="login-card">
-            <div class="logo-main">TV_NTX</div>
-            <input type="text" id="ntx_user" class="ntx-input" placeholder="Identifiant">
-            <input type="password" id="ntx_pass" class="ntx-input" placeholder="Mot de passe">
-            <button class="ntx-btn" onclick="handleLogin()">SE CONNECTER</button>
-            <p style="font-size: 10px; color: #444; margin-top: 25px; letter-spacing: 1px;">PRIVATE SERVER | @by Brice jct</p>
-        </div>
-    </section>
+<div id="page-home" style="display:none;">
+    <div class="main-stage">
+        <div class="player-box"><video id="video" controls playsinline></video></div>
+        <div id="info" style="padding: 10px; font-size: 14px; color: #666;">TV_NTX Ultra HD Ready</div>
+    </div>
+    <div id="rows"></div>
+</div>
 
-    <nav id="navbar">
-        <div class="logo-main" style="font-size: 24px; margin:0; cursor:pointer;" onclick="location.reload()">TV_NTX</div>
-        <div style="margin-left: auto; display:flex; gap:25px; align-items:center;">
-            <span id="admin-badge" style="display:none; color:var(--ntx-red); font-weight:900; font-size:12px; cursor:pointer;" onclick="switchTab('admin')">ADMINISTRATION</span>
-            <span onclick="switchTab('home')" style="cursor:pointer; font-size:13px; font-weight:600;">Accueil</span>
-            <span onclick="location.reload()" style="cursor:pointer; font-size:13px; color: #666;">Quitter</span>
-        </div>
-    </nav>
-
-    <main id="ui-home" style="display:none;">
-        <div class="main-stage">
-            <div class="player-wrap">
-                <video id="main-player" controls playsinline></video>
-            </div>
-            <div class="epg-mini">
-                <span id="playing-title" style="font-weight:700; letter-spacing:-0.3px;">En attente de diffusion...</span>
-                <span id="live-clock" style="color:var(--ntx-red); font-weight:800; font-variant-numeric: tabular-nums;">00:00:00</span>
-            </div>
-        </div>
-        <div id="content-rows"></div>
-    </main>
-
-    <section id="ui-admin" class="admin-page">
-        <div class="box">
-            <h2 style="margin-top:0;">Contrôle Général du Flux</h2>
-            <div style="display:flex; gap:10px;">
-                <button class="ntx-btn" style="background:#222;" onclick="setGlobalKill(true)">COUPER TOUT LE SERVEUR</button>
-                <button class="ntx-btn" style="background:green;" onclick="setGlobalKill(false)">RÉACTIVER TOUT</button>
-            </div>
-        </div>
-        <div class="box">
-            <h3>Ajouter une Chaîne / Film</h3>
-            <input type="text" id="add-name" class="ntx-input" placeholder="Nom">
-            <input type="text" id="add-url" class="ntx-input" placeholder="URL m3u8">
-            <select id="add-cat" class="ntx-input">
-                <option value="TNT">TNT France</option>
-                <option value="CANAL">Canal+ / Cinéma</option>
-                <option value="SPORT">Sport HD</option>
-                <option value="FILMS">Films / VOD</option>
-            </select>
-            <button class="ntx-btn" onclick="addNewContent()">AJOUTER AU CATALOGUE</button>
-        </div>
-        <div class="box" id="user-manager">
-            <h3>Gestion des Comptes Clients</h3>
-            </div>
-    </section>
+<div id="page-admin" class="admin-panel">
+    <div class="box">
+        <h3>Master Kill-Switch</h3>
+        <button class="ntx-btn" style="background:#333;" onclick="toggleKill(true)">COUPER FLUX MONDIAL</button>
+        <button class="ntx-btn" style="background:green; margin-top:5px;" onclick="toggleKill(false)">RÉACTIVER FLUX</button>
+    </div>
+    <div class="box">
+        <h3>Ajouter Contenu</h3>
+        <input type="text" id="an" class="ntx-input" placeholder="Nom">
+        <input type="text" id="au" class="ntx-input" placeholder="URL m3u8">
+        <select id="ac" class="ntx-input">
+            <option value="TNT">TNT</option>
+            <option value="CANAL">CANAL+</option>
+            <option value="SPORT">SPORT</option>
+        </select>
+        <button class="ntx-btn" onclick="add()">AJOUTER</button>
+    </div>
+</div>
 
 <script>
-    /* --- CONFIGURATION COMPTES --- */
-    const initialUsers = [
+    // --- GESTION DES COMPTES ---
+    const accounts = [
         { id: 'bricej', mdp: '07061999', role: 'admin', expire: null, active: true },
         { id: 'Mariej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31', active: true },
         { id: 'Hervej', mdp: 'Schiltigheim67*', role: 'user', expire: '2026-12-31', active: true },
@@ -188,168 +110,94 @@
         { id: 'Smart100', mdp: 'Smart100', role: 'user', expire: null, active: true }
     ];
 
-    let db_users = JSON.parse(localStorage.getItem('ntx_users')) || initialUsers;
-    let currentUser = null;
     let globalKill = localStorage.getItem('ntx_kill') === 'true';
 
-    /* --- MOTEUR HLS ULTRA-FLUIDITÉ --- */
-    const hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-        backBufferLength: 60,
-        maxBufferLength: 30,
-        startLevel: -1,
-        capLevelToPlayerSize: true
-    });
-    const player = document.getElementById('main-player');
-
-    // Générer fond animé
-    for(let i=0; i<15; i++) {
-        let s = document.createElement('div'); s.className='film-strip';
-        s.style.left = (i*8)+'%'; s.style.animationDelay = (i*0.5)+'s';
+    // Fond
+    for(let i=0; i<12; i++){
+        let s = document.createElement('div'); s.className='film-strip'; s.style.left=(i*10)+'%';
         document.getElementById('bg-anim').appendChild(s);
     }
 
-    function handleLogin() {
-        const u = document.getElementById('ntx_user').value;
-        const p = document.getElementById('ntx_pass').value;
-        const user = db_users.find(x => x.id === u && x.mdp === p);
-
-        if(!user) return alert("Identifiants incorrects sur TV_NTX.");
+    function login() {
+        const u = document.getElementById('l-user').value.trim();
+        const p = document.getElementById('l-pass').value.trim();
         
-        // Check Expiration
-        if(user.expire && new Date(user.expire) < new Date()) {
-            return alert("L'accès a été refusé. Merci de régler votre paiement mensuel. Contactez brice à Strassweb67@gmail.com.");
+        // On cherche dans notre liste d'identifiants
+        const user = accounts.find(x => x.id === u && x.mdp === p);
+
+        if(!user) {
+            alert("Identifiants incorrects sur TV_NTX.");
+            return;
         }
 
-        // Check Kill Switch individuel
-        if(!user.active && user.role !== 'admin') return alert("Votre compte a été suspendu par l'administrateur.");
+        // Vérif Date
+        if(user.expire && new Date(user.expire) < new Date()) {
+            alert("Accès refusé. Payement mensuel requis. Contactez brice à Strassweb67@gmail.com.");
+            return;
+        }
 
-        currentUser = user;
-        const flashMsg = user.expire ? `COMPTE ACTIF JUSQU'AU ${user.expire}` : "COMPTE ACTIF SANS LIMITE";
+        const flash = user.expire ? `ACTIF JUSQU'AU ${user.expire}` : "COMPTE ACTIF SANS LIMITE";
         
-        showFlash(flashMsg, () => {
+        const loader = document.getElementById('master-loader');
+        document.getElementById('loader-msg').innerText = flash;
+        loader.style.display = 'flex';
+
+        setTimeout(() => {
+            loader.style.display = 'none';
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('navbar').style.display = 'flex';
-            document.getElementById('ui-home').style.display = 'block';
-            if(user.role === 'admin') document.getElementById('admin-badge').style.display = 'block';
+            document.getElementById('page-home').style.display = 'block';
+            if(user.role === 'admin') document.getElementById('adm-link').style.display = 'block';
             
-            // Adoucir fond
             document.querySelectorAll('.film-strip').forEach(s => s.style.opacity = "0.1");
-            
-            startClock();
-            renderContent();
-            renderAdminUsers();
-        });
-    }
-
-    function showFlash(msg, cb) {
-        const loader = document.getElementById('master-loader');
-        document.getElementById('loader-msg').innerText = msg;
-        loader.style.display = 'flex';
-        setTimeout(() => { 
-            loader.style.display = 'none'; 
-            cb(); 
-            // Animation d'entrée des rangées
-            document.querySelectorAll('.row-scroll').forEach((r, i) => {
-                setTimeout(() => { r.style.opacity = "1"; r.style.transform = "translateY(0)"; }, i * 200);
-            });
+            render();
+            document.querySelector('.row-scroll').style.opacity = "1";
+            document.querySelector('.row-scroll').style.transform = "translateY(0)";
         }, 900);
     }
 
-    function renderContent() {
-        const mount = document.getElementById('content-rows');
-        const lib = JSON.parse(localStorage.getItem('ntx_lib')) || [];
-        const cats = ["TNT", "CANAL", "SPORT", "FILMS"];
-        mount.innerHTML = '';
+    const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+    function play(url, name) {
+        if(globalKill) return alert("Le flux est coupé.");
+        hls.loadSource(url);
+        hls.attachMedia(document.getElementById('video'));
+        hls.on(Hls.Events.MANIFEST_PARSED, () => document.getElementById('video').play());
+    }
 
-        cats.forEach(c => {
+    function render() {
+        const cont = document.getElementById('rows');
+        const lib = JSON.parse(localStorage.getItem('ntx_lib')) || [];
+        cont.innerHTML = '';
+        ["TNT", "CANAL", "SPORT"].forEach(c => {
             const items = lib.filter(it => it.cat === c);
             if(items.length > 0) {
-                let html = `<div class="row-title">${c}</div><div class="row-scroll">`;
+                let h = `<div class="row-title">${c}</div><div class="row-scroll">`;
                 items.forEach(it => {
-                    html += `<div class="card" onclick="playStream('${it.url}', '${it.name}')">
-                        <img src="https://via.placeholder.com/300x168/111/eee?text=${it.name}">
-                    </div>`;
+                    h += `<div class="card" onclick="play('${it.url}', '${it.name}')"><img src="https://via.placeholder.com/300x168/111/fff?text=${it.name}"></div>`;
                 });
-                html += `</div>`;
-                mount.innerHTML += html;
+                h += `</div>`;
+                cont.innerHTML += h;
             }
         });
     }
 
-    function playStream(url, name) {
-        if(globalKill && currentUser.role !== 'admin') return alert("Le flux est actuellement coupé.");
-        
-        document.getElementById('playing-title').innerText = "DIRECT HD : " + name;
-        document.getElementById('master-loader').style.display = 'flex';
-        document.getElementById('loader-msg').innerText = "OPTIMISATION FLUIDITÉ...";
-
-        hls.loadSource(url);
-        hls.attachMedia(player);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            player.play();
-            setTimeout(() => document.getElementById('master-loader').style.display = 'none', 500);
-        });
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    }
-
-    /* --- FONCTIONS ADMIN --- */
-    function addNewContent() {
-        const n = document.getElementById('add-name').value;
-        const u = document.getElementById('add-url').value;
-        const c = document.getElementById('add-cat').value;
+    function add() {
+        const n = document.getElementById('an').value;
+        const u = document.getElementById('au').value;
+        const c = document.getElementById('ac').value;
         if(n && u) {
             let lib = JSON.parse(localStorage.getItem('ntx_lib')) || [];
             lib.push({name:n, url:u, cat:c});
             localStorage.setItem('ntx_lib', JSON.stringify(lib));
-            alert("Contenu ajouté !");
-            renderContent();
+            alert("Ajouté"); render();
         }
     }
 
-    function renderAdminUsers() {
-        const cont = document.getElementById('user-manager');
-        cont.innerHTML = '<h3>Gestion des Comptes Clients</h3>';
-        db_users.forEach((u, i) => {
-            if(u.role === 'admin') return;
-            cont.innerHTML += `
-                <div class="user-item">
-                    <div><b>${u.id}</b><br><small>${u.expire || 'Illimité'}</small></div>
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="toggleUser(${i})" style="background:${u.active?'green':'#444'}; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">
-                            ${u.active?'ACTIF':'COUPÉ'}
-                        </button>
-                        <button onclick="deleteUser(${i})" style="background:none; border:none; color:red; cursor:pointer;">Supprimer</button>
-                    </div>
-                </div>`;
-        });
+    function toggleKill(val) { globalKill = val; localStorage.setItem('ntx_kill', val); alert("Etat changé"); }
+    function showUI(id) {
+        document.getElementById('page-home').style.display = (id==='home'?'block':'none');
+        document.getElementById('page-admin').style.display = (id==='admin'?'block':'none');
     }
-
-    function toggleUser(idx) { db_users[idx].active = !db_users[idx].active; saveUsers(); renderAdminUsers(); }
-    function deleteUser(idx) { db_users.splice(idx,1); saveUsers(); renderAdminUsers(); }
-    function saveUsers() { localStorage.setItem('ntx_users', JSON.stringify(db_users)); }
-    function setGlobalKill(val) { globalKill = val; localStorage.setItem('ntx_kill', val); alert(val?"Flux mondial coupé.":"Flux mondial rétabli."); }
-
-    function switchTab(id) {
-        document.getElementById('ui-home').style.display = (id==='home'?'block':'none');
-        document.getElementById('ui-admin').style.display = (id==='admin'?'block':'none');
-    }
-
-    function startClock() {
-        setInterval(() => {
-            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-    }
-
-    window.onscroll = () => {
-        const nav = document.getElementById('navbar');
-        if(window.scrollY > 40) nav.classList.add('scrolled');
-        else nav.classList.remove('scrolled');
-    };
-
-    // Sécurité session 1h
-    setTimeout(() => { alert("Session expirée."); location.reload(); }, 3600000);
 </script>
 </body>
 </html>
